@@ -1,0 +1,4 @@
+[workspace]
+
+members = ["playground", "sog-decoder", "sog-decoder-wasm"]
+resolver = "3"
