@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-slim
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build Rust workspace
+        working-directory: rust
+        run: cargo build --workspace
+
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      #     cache: "pnpm"
+
+      # - name: Set up pnpm
+      #   uses: pnpm/action-setup@v3
+      #   with:
+      #     version: 9
+
+      # - name: Install dependencies
+      #   run: pnpm install
+
+      # - name: Build npm packages
+      #   run: pnpm -r build
