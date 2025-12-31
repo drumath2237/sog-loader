@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::{collections::HashMap, io::Cursor};
 
 use zip::{ZipArchive, result::ZipError};
 
@@ -8,38 +8,35 @@ pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
-enum ArchivedSogFile {
-    MetaJson(String),
-    Image { filename: String, data: Vec<u8> },
+#[derive(Default)]
+struct ArchivedSogFile {
+    pub meta_json: Option<String>,
+    pub image_files: HashMap<String, Vec<u8>>,
 }
 
-fn extract_zip(zip_file_data: &[u8]) -> Result<Vec<ArchivedSogFile>, ZipError> {
+fn extract_zip(zip_file_data: &[u8]) -> Result<ArchivedSogFile, ZipError> {
     let cursor = Cursor::new(zip_file_data);
     let mut archive = ZipArchive::new(cursor)?;
 
-    let mut files = Vec::new();
+    let mut archived_sog = ArchivedSogFile::default();
+
     for i in 0..archive.len() {
         let mut zip_file = archive.by_index_raw(i)?;
 
-        let name = zip_file.name().to_owned();
-
-        let sog = if name == "meta.json" {
+        if zip_file.name() == "meta.json" {
             let mut buf = String::new();
             zip_file.read_to_string(&mut buf)?;
-            ArchivedSogFile::MetaJson(buf)
+            archived_sog.meta_json = Some(buf);
         } else {
             let mut buf = Vec::new();
             let _size = zip_file.read_to_end(&mut buf)?;
-            ArchivedSogFile::Image {
-                filename: name,
-                data: buf,
-            }
+            archived_sog
+                .image_files
+                .insert(zip_file.name().to_owned(), buf);
         };
-
-        files.push(sog);
     }
 
-    Ok(files)
+    Ok(archived_sog)
 }
 
 #[cfg(test)]
