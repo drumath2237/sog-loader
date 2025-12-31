@@ -1,0 +1,8 @@
+[package]
+edition = "2024"
+name = "playground"
+publish = false
+version = "0.1.0"
+
+[dependencies]
+sog-decoder = {path = "../sog-decoder"}
