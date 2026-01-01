@@ -1,5 +1,7 @@
 mod error;
 mod decode;
+mod metajson;
+mod types;
 
 use std::{collections::HashMap, io::Cursor};
 

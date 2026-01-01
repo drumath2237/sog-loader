@@ -1,11 +1,12 @@
-﻿use crate::error::SogDecodeError;
+﻿use crate::error::DecodeResult;
+use crate::types::SogDataV2;
 use std::collections::HashMap;
 use std::io::{Cursor, Read};
 use zip::ZipArchive;
 use zip::result::ZipError;
 
 /// Unzip a zip file and return a HashMap of file names and their contents.
-fn unzip(file_data: &[u8]) -> Result<HashMap<String, Vec<u8>>, SogDecodeError> {
+fn unzip(file_data: &[u8]) -> DecodeResult<HashMap<String, Vec<u8>>> {
     let cursor = Cursor::new(file_data);
     let mut archive = ZipArchive::new(cursor)?;
     let mut files = HashMap::new();
@@ -18,4 +19,8 @@ fn unzip(file_data: &[u8]) -> Result<HashMap<String, Vec<u8>>, SogDecodeError> {
     }
 
     Ok(files)
+}
+
+fn construct_sog(files: HashMap<String, Vec<u8>>) -> DecodeResult<SogDataV2> {
+    todo!()
 }
