@@ -1,4 +1,5 @@
 mod error;
+mod decode;
 
 use std::{collections::HashMap, io::Cursor};
 
@@ -23,7 +24,7 @@ pub fn extract_zip(zip_file_data: &[u8]) -> Result<ArchivedSogFile, ZipError> {
     let mut archived_sog = ArchivedSogFile::default();
 
     for i in 0..archive.len() {
-        let mut zip_file = archive.by_index_raw(i)?;
+        let mut zip_file = archive.by_index(i)?;
 
         if zip_file.name() == "meta.json" {
             let mut buf = String::new();
