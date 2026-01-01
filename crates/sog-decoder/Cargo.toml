@@ -4,4 +4,5 @@ name = "sog-decoder"
 version = "0.1.0"
 
 [dependencies]
-zip = {version = "7.0.0", default-features = false, features = ["deflate"]}
+zip = { version = "7.0.0", default-features = false, features = ["deflate"] }
+thiserror = { workspace = true }
