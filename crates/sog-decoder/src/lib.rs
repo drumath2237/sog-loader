@@ -11,12 +11,12 @@ pub fn add(left: u64, right: u64) -> u64 {
 }
 
 #[derive(Default)]
-struct ArchivedSogFile {
+pub struct ArchivedSogFile {
     pub meta_json: Option<String>,
     pub image_files: HashMap<String, Vec<u8>>,
 }
 
-fn extract_zip(zip_file_data: &[u8]) -> Result<ArchivedSogFile, ZipError> {
+pub fn extract_zip(zip_file_data: &[u8]) -> Result<ArchivedSogFile, ZipError> {
     let cursor = Cursor::new(zip_file_data);
     let mut archive = ZipArchive::new(cursor)?;
 
