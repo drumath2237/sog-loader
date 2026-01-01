@@ -19,7 +19,6 @@ jobs:
           override: true
 
       - name: Build Rust workspace
-        working-directory: rust
         run: cargo build --workspace
 
       # - name: Set up Node.js
