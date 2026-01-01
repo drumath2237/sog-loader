@@ -1,3 +1,5 @@
+mod error;
+
 use std::{collections::HashMap, io::Cursor};
 
 use zip::{ZipArchive, result::ZipError};
