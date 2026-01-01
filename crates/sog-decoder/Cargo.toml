@@ -6,3 +6,5 @@ version = "0.1.0"
 [dependencies]
 zip = { version = "7.0.0", default-features = false, features = ["deflate"] }
 thiserror = { workspace = true }
+serde = { version = "1.0.228", features = ["derive"], default-features = false }
+serde_json = { version = "1.0.145", default-features = false, features = ["alloc"] }
