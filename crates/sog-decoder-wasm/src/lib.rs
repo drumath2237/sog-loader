@@ -1,5 +1,5 @@
 pub fn add(left: u64, right: u64) -> u64 {
-    sog_decoder::add(left, right)
+    left + right
 }
 
 #[cfg(test)]

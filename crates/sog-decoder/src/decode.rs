@@ -1,13 +1,13 @@
 ﻿use crate::error::{DecodeError, DecodeResult};
 use crate::metajson::MetaJsonType;
-use crate::types::{Means, ParseError, Quats, Scales, Sh0, ShN, SogDataV2, Vector3};
+use crate::types::{Means, ParseError, Quats, Scales, Sh0, ShN, SogDataV2};
 use std::collections::HashMap;
 use std::io::{Cursor, Read};
 use zip::ZipArchive;
 use zip::result::ZipError;
 
 /// Unzip a zip file and return a HashMap of file names and their contents.
-fn unzip(file_data: &[u8]) -> DecodeResult<HashMap<String, Vec<u8>>> {
+pub fn unzip(file_data: &[u8]) -> DecodeResult<HashMap<String, Vec<u8>>> {
     let cursor = Cursor::new(file_data);
     let mut archive = ZipArchive::new(cursor)?;
     let mut files = HashMap::new();
@@ -22,7 +22,7 @@ fn unzip(file_data: &[u8]) -> DecodeResult<HashMap<String, Vec<u8>>> {
     Ok(files)
 }
 
-fn parse_sog(files: HashMap<String, Vec<u8>>) -> DecodeResult<SogDataV2> {
+pub fn parse_sog(files: HashMap<String, Vec<u8>>) -> DecodeResult<SogDataV2> {
     let meta_bytes = files
         .get("meta.json")
         .ok_or(DecodeError::MetaJsonNotFound)?;
