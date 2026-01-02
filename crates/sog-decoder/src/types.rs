@@ -2,21 +2,67 @@
 pub struct SogDataV2 {
     pub count: u32,
     pub antialias: bool,
-    means: Means,
-    scales: Scales,
-    quats: Quats,
-    sh0: Sh0,
-    sh_n: Option<ShN>,
+    pub means: Means,
+    pub scales: Scales,
+    pub quats: Quats,
+    pub sh0: Sh0,
+    pub sh_n: Option<ShN>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(thiserror::Error, Debug)]
+pub enum ParseError {
+    #[error("invalid vector data")]
+    ParseVector(String),
+    #[error("invalid codebook length")]
+    ParseCodebook(String),
+    #[error("image file not found: {0}")]
+    ImageNotFound(String),
+}
+
+#[derive(Debug, Clone, Default)]
 pub struct Vector3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
 }
 
-type Codebook = [f32; 256];
+impl Vector3 {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Self { x, y, z }
+    }
+}
+
+impl TryFrom<Vec<f32>> for Vector3 {
+    type Error = ParseError;
+    fn try_from(value: Vec<f32>) -> Result<Self, Self::Error> {
+        if value.len() >= 3 {
+            Ok(Self::new(value[0], value[1], value[2]))
+        } else {
+            Err(ParseError::ParseVector(
+                "Vector must have at least 3 elements".to_string(),
+            ))
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Codebook(pub [f32; 256]);
+
+impl TryFrom<&[f32]> for Codebook {
+    type Error = ParseError;
+    fn try_from(value: &[f32]) -> Result<Self, Self::Error> {
+        if value.len() >= 256 {
+            let mut arr = [0.0f32; 256];
+            arr.copy_from_slice(&value[..256]);
+            Ok(Self(arr))
+        } else {
+            Err(ParseError::ParseCodebook(
+                "Codebook must have at least 256 elements".to_string(),
+            ))
+        }
+    }
+}
+
 type ImageData = Vec<u8>;
 
 #[derive(Debug, Clone)]
@@ -28,7 +74,7 @@ pub struct Means {
 }
 
 #[derive(Debug, Clone)]
-pub struct Quats(ImageData);
+pub struct Quats(pub ImageData);
 
 #[derive(Debug, Clone)]
 pub struct Scales {
