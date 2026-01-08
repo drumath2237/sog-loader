@@ -163,9 +163,9 @@ fn decode_positions(means: &Means) -> DecodeResult<Vec<Vector3>> {
 
     let mut positions = vec![Vector3::default(); lower_pixels.len() / 4];
     for i in 0..positions.len() {
-        let pos_x = (((upper_pixels[i * 4 + 0]) << 8) as u16) | (lower_pixels[i * 4 + 0] as u16);
-        let pos_y = (((upper_pixels[i * 4 + 1]) << 8) as u16) | (lower_pixels[i * 4 + 1] as u16);
-        let pos_z = (((upper_pixels[i * 4 + 2]) << 8) as u16) | (lower_pixels[i * 4 + 2] as u16);
+        let pos_x = ((upper_pixels[i * 4 + 0] as u16) << 8) | (lower_pixels[i * 4 + 0] as u16);
+        let pos_y = ((upper_pixels[i * 4 + 1] as u16) << 8) | (lower_pixels[i * 4 + 1] as u16);
+        let pos_z = ((upper_pixels[i * 4 + 2] as u16) << 8) | (lower_pixels[i * 4 + 2] as u16);
 
         fn lerp(a: f32, b: f32, t: f32) -> f32 {
             a + t * (b - a)
