@@ -1,6 +1,6 @@
 ﻿use crate::error::{DecodeError, DecodeResult, Error, ParseError, Result};
 use crate::metajson::MetaJsonType;
-use crate::types::{Means, Quats, Scales, Sh0, ShN, SogDataV2, Vector3};
+use crate::types::{Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Vector3};
 use image_webp::WebPDecoder;
 use serde::de::Unexpected::Float;
 use std::collections::HashMap;
@@ -122,7 +122,7 @@ pub fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
     })
 }
 
-pub fn decode_position(means: &Means) -> DecodeResult<Vec<Vector3>> {
+pub fn decode_positions(means: &Means) -> DecodeResult<Vec<Vector3>> {
     let Means {
         mins,
         maxs,
@@ -184,4 +184,51 @@ pub fn decode_position(means: &Means) -> DecodeResult<Vec<Vector3>> {
     }
 
     Ok(positions)
+}
+
+fn decode_rotations(quats: &Quats) -> DecodeResult<Vec<Quaternion>> {
+    let cursor = Cursor::new(&quats.0);
+    let mut decoder = WebPDecoder::new(cursor)?;
+    let output_size = decoder
+        .output_buffer_size()
+        .ok_or_else(|| DecodeError::InvalidSize("cannot determine output size".to_string()))?;
+    let mut pixels = vec![0u8; output_size];
+    decoder.read_image(&mut pixels)?;
+
+    fn toComp(x: f32) -> f32 {
+        (x / 255.0 - 0.5) * 0.2 / f32::sqrt(2.0)
+    }
+
+    let mut rotations = vec![Quaternion::default(); pixels.len() / 4];
+    for i in 0..rotations.len() {
+        let a = toComp(pixels[i * 4 + 0] as f32);
+        let b = toComp(pixels[i * 4 + 1] as f32);
+        let c = toComp(pixels[i * 4 + 2] as f32);
+        let m = pixels[i * 4 + 3];
+        let mode = match m - 252 {
+            0u8 => Ok(0u8),
+            1u8 => Ok(1u8),
+            2u8 => Ok(2u8),
+            3u8 => Ok(3u8),
+            _ => Err(DecodeError::InvalidData(format!(
+                "invalid rotation mode: {}",
+                pixels[i * 4 + 3] - 252
+            ))),
+        }?;
+        let d = f32::sqrt(f32::max(0.0, 1.0 - a * a - b * b - c * c));
+
+        rotations[i] = match mode {
+            0 => Quaternion::new(d, a, b, c),
+            1 => Quaternion::new(a, d, b, c),
+            2 => Quaternion::new(a, b, d, c),
+            3 => Quaternion::new(a, b, c, d),
+            _ => unreachable!(),
+        }
+    }
+
+    Ok(rotations)
+}
+
+fn decode_scales(scales: &Scales) -> DecodeResult<Vec<f32>> {
+    todo!()
 }

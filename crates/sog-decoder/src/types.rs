@@ -1,16 +1,5 @@
 ﻿use crate::error::ParseError;
 
-#[derive(Debug, Clone)]
-pub struct SogDataV2 {
-    pub count: u32,
-    pub antialias: bool,
-    pub means: Means,
-    pub scales: Scales,
-    pub quats: Quats,
-    pub sh0: Sh0,
-    pub sh_n: Option<ShN>,
-}
-
 #[derive(Debug, Clone, Default)]
 pub struct Vector3 {
     pub x: f32,
@@ -35,6 +24,31 @@ impl TryFrom<Vec<f32>> for Vector3 {
             ))
         }
     }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Quaternion{
+    pub w: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
+
+impl Quaternion {
+    pub fn new(w: f32, x: f32, y: f32, z: f32) -> Self {
+        Self { w, x, y, z }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct SogDataV2 {
+    pub count: u32,
+    pub antialias: bool,
+    pub means: Means,
+    pub scales: Scales,
+    pub quats: Quats,
+    pub sh0: Sh0,
+    pub sh_n: Option<ShN>,
 }
 
 #[derive(Debug, Clone)]

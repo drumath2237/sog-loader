@@ -33,6 +33,8 @@ pub enum DecodeError {
     DecodeImage(#[from] DecodingError),
     #[error("Invalid size: {0}")]
     InvalidSize(String),
+    #[error("Invalid data: {0}")]
+    InvalidData(String),
 }
 
 pub type DecodeResult<T> = core::result::Result<T, DecodeError>;
