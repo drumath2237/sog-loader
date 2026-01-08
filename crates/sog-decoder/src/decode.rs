@@ -229,6 +229,32 @@ fn decode_rotations(quats: &Quats) -> DecodeResult<Vec<Quaternion>> {
     Ok(rotations)
 }
 
-fn decode_scales(scales: &Scales) -> DecodeResult<Vec<f32>> {
-    todo!()
+fn decode_scales(scales: &Scales) -> DecodeResult<Vec<Vector3>> {
+    let Scales { codebook, scales } = scales;
+
+    let cursor = Cursor::new(scales);
+    let mut decoder = WebPDecoder::new(cursor)?;
+    let output_size = decoder
+        .output_buffer_size()
+        .ok_or_else(|| DecodeError::InvalidSize("cannot determine output size".to_string()))?;
+    let mut pixels = vec![0u8; output_size];
+    decoder.read_image(&mut pixels)?;
+
+    if pixels.len() % 4 != 0 {
+        return Err(DecodeError::InvalidData(format!(
+            "scale image size cannot be divided by 4: {}",
+            pixels.len()
+        )));
+    }
+
+    let mut scales = vec![Vector3::default(); pixels.len() / 4];
+    for i in 0..scales.len() {
+        scales[i] = Vector3::new(
+            codebook.0[pixels[i * 4 + 0] as usize],
+            codebook.0[pixels[i * 4 + 1] as usize],
+            codebook.0[pixels[i * 4 + 2] as usize],
+        );
+    }
+
+    Ok(scales)
 }
