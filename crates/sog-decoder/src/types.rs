@@ -1,4 +1,6 @@
-﻿#[derive(Debug, Clone)]
+﻿use crate::error::ParseError;
+
+#[derive(Debug, Clone)]
 pub struct SogDataV2 {
     pub count: u32,
     pub antialias: bool,
@@ -7,16 +9,6 @@ pub struct SogDataV2 {
     pub quats: Quats,
     pub sh0: Sh0,
     pub sh_n: Option<ShN>,
-}
-
-#[derive(thiserror::Error, Debug)]
-pub enum ParseError {
-    #[error("invalid vector data")]
-    ParseVector(String),
-    #[error("invalid codebook length")]
-    ParseCodebook(String),
-    #[error("image file not found: {0}")]
-    ImageNotFound(String),
 }
 
 #[derive(Debug, Clone, Default)]
