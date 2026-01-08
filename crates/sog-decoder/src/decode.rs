@@ -2,9 +2,7 @@
 use crate::metajson::MetaJsonType;
 use crate::types::{Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Vector3};
 use image_webp::WebPDecoder;
-use serde::de::Unexpected::Float;
 use std::collections::HashMap;
-use std::fmt::format;
 use std::io::{Cursor, Read};
 use zip::ZipArchive;
 use zip::result::ZipError;
@@ -122,7 +120,7 @@ pub fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
     })
 }
 
-pub fn decode_positions(means: &Means) -> DecodeResult<Vec<Vector3>> {
+fn decode_positions(means: &Means) -> DecodeResult<Vec<Vector3>> {
     let Means {
         mins,
         maxs,
@@ -195,15 +193,15 @@ fn decode_rotations(quats: &Quats) -> DecodeResult<Vec<Quaternion>> {
     let mut pixels = vec![0u8; output_size];
     decoder.read_image(&mut pixels)?;
 
-    fn toComp(x: f32) -> f32 {
+    fn to_comp(x: f32) -> f32 {
         (x / 255.0 - 0.5) * 0.2 / f32::sqrt(2.0)
     }
 
     let mut rotations = vec![Quaternion::default(); pixels.len() / 4];
     for i in 0..rotations.len() {
-        let a = toComp(pixels[i * 4 + 0] as f32);
-        let b = toComp(pixels[i * 4 + 1] as f32);
-        let c = toComp(pixels[i * 4 + 2] as f32);
+        let a = to_comp(pixels[i * 4 + 0] as f32);
+        let b = to_comp(pixels[i * 4 + 1] as f32);
+        let c = to_comp(pixels[i * 4 + 2] as f32);
         let m = pixels[i * 4 + 3];
         let mode = match m - 252 {
             0u8 => Ok(0u8),
