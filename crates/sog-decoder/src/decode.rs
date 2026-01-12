@@ -1,6 +1,8 @@
 ﻿use crate::error::{DecodeError, DecodeResult, Error, ParseError, Result};
 use crate::metajson::MetaJsonType;
-use crate::types::{Color4, Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Vector3};
+use crate::types::{
+    Color3, Color4, Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Vector3,
+};
 use image_webp::WebPDecoder;
 use std::collections::HashMap;
 use std::io::{Cursor, Read};
@@ -288,4 +290,72 @@ fn decode_color(sh0: &Sh0) -> DecodeResult<Vec<Color4>> {
     }
 
     Ok(colors)
+}
+
+fn decode_sh_n(sh_n: &ShN) -> DecodeResult<Vec<Color3>> {
+    let ShN {
+        count,
+        bands,
+        codebook,
+        centroids,
+        labels,
+    } = sh_n;
+
+    if *bands <= 0 || *bands >= 4 {
+        return Err(DecodeError::InvalidSize(format!(
+            "invalid bands count: {}",
+            bands
+        )));
+    }
+
+    let cursor = Cursor::new(centroids);
+    let mut decoder = WebPDecoder::new(cursor)?;
+    let output_size = decoder
+        .output_buffer_size()
+        .ok_or_else(|| DecodeError::InvalidSize("cannot determine output size".to_string()))?;
+    let mut centroids_pixels = vec![0u8; output_size];
+    decoder.read_image(&mut centroids_pixels)?;
+
+    let cursor = Cursor::new(labels);
+    let mut decoder = WebPDecoder::new(cursor)?;
+    let output_size = decoder
+        .output_buffer_size()
+        .ok_or_else(|| DecodeError::InvalidSize("cannot determine output size".to_string()))?;
+    let mut labels_pixels = vec![0u8; output_size];
+    decoder.read_image(&mut labels_pixels)?;
+
+    if centroids_pixels.len() % 4 != 0 || labels_pixels.len() % 4 != 0 {
+        return Err(DecodeError::InvalidSize(
+            "invalid image dimensions".to_string(),
+        ));
+    }
+
+    let mut palette_indices: Vec<u16> = vec![0u16; labels_pixels.len() / 4];
+    for i in 0..palette_indices.len() {
+        palette_indices[i] =
+            (labels_pixels[i * 4 + 0] as u16) | ((labels_pixels[i * 4 + 1] as u16) << 8);
+    }
+
+    // calc number of coefficients
+    let coeff_count = match bands {
+        1 => 3,
+        2 => 8,
+        3 => 15,
+        _ => unreachable!(),
+    };
+
+    let mut sh_n_s: Vec<Color3> = vec![Color3::default(); palette_indices.len() * coeff_count];
+    for i in 0..palette_indices.len() {
+        let palette_index = palette_indices[i] as usize;
+        for coeff_index in 0..coeff_count {
+            let index = i * coeff_count + coeff_index;
+            sh_n_s[index] = Color3::new(
+                codebook.0[centroids_pixels[palette_index * 4 + 0] as usize],
+                codebook.0[centroids_pixels[palette_index * 4 + 1] as usize],
+                codebook.0[centroids_pixels[palette_index * 4 + 2] as usize],
+            )
+        }
+    }
+
+    Ok(sh_n_s)
 }
