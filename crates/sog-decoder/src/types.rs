@@ -27,7 +27,7 @@ impl TryFrom<Vec<f32>> for Vector3 {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Quaternion{
+pub struct Quaternion {
     pub w: f32,
     pub x: f32,
     pub y: f32,
@@ -37,6 +37,19 @@ pub struct Quaternion{
 impl Quaternion {
     pub fn new(w: f32, x: f32, y: f32, z: f32) -> Self {
         Self { w, x, y, z }
+    }
+}
+
+pub struct Color4 {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32,
+}
+
+impl Color4 {
+    pub fn new(r: f32, g: f32, b: f32, a: f32) -> Self {
+        Self { r, g, b, a }
     }
 }
 
