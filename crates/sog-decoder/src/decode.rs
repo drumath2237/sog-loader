@@ -1,7 +1,7 @@
 ﻿use crate::error::{DecodeError, DecodeResult, Error, ParseError, Result};
 use crate::metajson::MetaJsonType;
 use crate::types::{
-    Color3, Color4, Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Vector3,
+    Color3, Color4, Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Splat, Vector3,
 };
 use image_webp::WebPDecoder;
 use std::collections::HashMap;
@@ -200,11 +200,23 @@ fn decode_rotations(quats: &Quats) -> DecodeResult<Vec<Quaternion>> {
     }
 
     let mut rotations = vec![Quaternion::default(); pixels.len() / 4];
+
+    println!("pixels len: {}", pixels.len());
+    println!("rotations len: {}", rotations.len());
+    
     for i in 0..rotations.len() {
         let a = to_comp(pixels[i * 4 + 0] as f32);
         let b = to_comp(pixels[i * 4 + 1] as f32);
         let c = to_comp(pixels[i * 4 + 2] as f32);
         let m = pixels[i * 4 + 3];
+
+        if m < 252 {
+            return Err(DecodeError::InvalidData(format!(
+                "invalid rotation mode(m<252): {}, index: {}",
+                m, i
+            )));
+        }
+
         let mode = match m - 252 {
             0u8 => Ok(0u8),
             1u8 => Ok(1u8),
@@ -294,7 +306,7 @@ fn decode_color(sh0: &Sh0) -> DecodeResult<Vec<Color4>> {
 
 fn decode_sh_n(sh_n: &ShN) -> DecodeResult<Vec<Color3>> {
     let ShN {
-        count,
+        count: _,
         bands,
         codebook,
         centroids,
@@ -358,4 +370,32 @@ fn decode_sh_n(sh_n: &ShN) -> DecodeResult<Vec<Color3>> {
     }
 
     Ok(sh_n_s)
+}
+
+pub fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
+    let SogDataV2 {
+        means,
+        quats,
+        scales,
+        sh0,
+        sh_n,
+        count,
+        antialias,
+    } = sog_data;
+
+    let splat = Splat {
+        position: decode_positions(means)?,
+        rotation: decode_rotations(quats)?,
+        scale: decode_scales(scales)?,
+        color: decode_color(sh0)?,
+        sh_n: if let Some(s) = sh_n {
+            Some(decode_sh_n(&s)?)
+        } else {
+            None
+        },
+        count: count.clone() as usize,
+        antialias: antialias.clone(),
+    };
+
+    Ok(splat)
 }

@@ -129,3 +129,14 @@ pub struct ShN {
     pub labels: ImageData,
     pub centroids: ImageData,
 }
+
+#[derive(Debug, Clone)]
+pub struct Splat {
+    pub count: usize,
+    pub antialias: bool,
+    pub position: Vec<Vector3>,
+    pub rotation: Vec<Quaternion>,
+    pub scale: Vec<Vector3>,
+    pub color: Vec<Color4>,
+    pub sh_n: Option<Vec<Color3>>,
+}
