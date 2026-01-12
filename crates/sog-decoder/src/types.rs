@@ -40,6 +40,7 @@ impl Quaternion {
     }
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct Color4 {
     pub r: f32,
     pub g: f32,

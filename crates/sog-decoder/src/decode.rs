@@ -1,6 +1,6 @@
 ﻿use crate::error::{DecodeError, DecodeResult, Error, ParseError, Result};
 use crate::metajson::MetaJsonType;
-use crate::types::{Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Vector3};
+use crate::types::{Color4, Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Vector3};
 use image_webp::WebPDecoder;
 use std::collections::HashMap;
 use std::io::{Cursor, Read};
@@ -255,4 +255,37 @@ fn decode_scales(scales: &Scales) -> DecodeResult<Vec<Vector3>> {
     }
 
     Ok(scales)
+}
+
+fn decode_color(sh0: &Sh0) -> DecodeResult<Vec<Color4>> {
+    const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
+
+    let Sh0 { codebook, sh0 } = sh0;
+
+    let cursor = Cursor::new(sh0);
+    let mut decoder = WebPDecoder::new(cursor)?;
+    let output_size = decoder
+        .output_buffer_size()
+        .ok_or_else(|| DecodeError::InvalidSize("cannot determine output size".to_string()))?;
+    let mut pixels = vec![0u8; output_size];
+    decoder.read_image(&mut pixels)?;
+
+    if pixels.len() % 4 != 0 {
+        return Err(DecodeError::InvalidData(format!(
+            "color image size cannot be divided by 4: {}",
+            pixels.len()
+        )));
+    }
+
+    let mut colors = vec![Color4::default(); pixels.len() / 4];
+    for i in 0..colors.len() {
+        colors[i] = Color4::new(
+            SH_C0 * codebook.0[pixels[i * 4 + 0] as usize],
+            SH_C0 * codebook.0[pixels[i * 4 + 1] as usize],
+            SH_C0 * codebook.0[pixels[i * 4 + 2] as usize],
+            pixels[i * 4 + 3] as f32 / 255.0,
+        )
+    }
+
+    Ok(colors)
 }
