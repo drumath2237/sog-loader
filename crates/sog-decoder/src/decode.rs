@@ -293,9 +293,9 @@ fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
 
     let mut colors = vec![0f32; count * 4];
     for i in 0..count {
-        colors[i * 4 + 0] = SH_C0 * codebook.0[pixels[i * 4 + 0] as usize];
-        colors[i * 4 + 1] = SH_C0 * codebook.0[pixels[i * 4 + 1] as usize];
-        colors[i * 4 + 2] = SH_C0 * codebook.0[pixels[i * 4 + 2] as usize];
+        colors[i * 4 + 0] = SH_C0 * codebook.0[pixels[i * 4 + 0] as usize] + 0.5;
+        colors[i * 4 + 1] = SH_C0 * codebook.0[pixels[i * 4 + 1] as usize] + 0.5;
+        colors[i * 4 + 2] = SH_C0 * codebook.0[pixels[i * 4 + 2] as usize] + 0.5;
         colors[i * 4 + 3] = pixels[i * 4 + 3] as f32 / 255.0;
     }
 
