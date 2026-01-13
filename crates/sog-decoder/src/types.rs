@@ -1,23 +1,4 @@
-﻿#[derive(Debug, Clone)]
-pub struct SogDataV2 {
-    pub count: u32,
-    pub antialias: bool,
-    pub means: Means,
-    pub scales: Scales,
-    pub quats: Quats,
-    pub sh0: Sh0,
-    pub sh_n: Option<ShN>,
-}
-
-#[derive(thiserror::Error, Debug)]
-pub enum ParseError {
-    #[error("invalid vector data")]
-    ParseVector(String),
-    #[error("invalid codebook length")]
-    ParseCodebook(String),
-    #[error("image file not found: {0}")]
-    ImageNotFound(String),
-}
+﻿use crate::error::ParseError;
 
 #[derive(Debug, Clone, Default)]
 pub struct Vector3 {
@@ -43,6 +24,58 @@ impl TryFrom<Vec<f32>> for Vector3 {
             ))
         }
     }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Quaternion {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
+}
+
+impl Quaternion {
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+        Self { x, y, z, w }
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Color4 {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32,
+}
+
+impl Color4 {
+    pub fn new(r: f32, g: f32, b: f32, a: f32) -> Self {
+        Self { r, g, b, a }
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Color3 {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+}
+
+impl Color3 {
+    pub fn new(r: f32, g: f32, b: f32) -> Self {
+        Self { r, g, b }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct SogDataV2 {
+    pub count: u32,
+    pub antialias: bool,
+    pub means: Means,
+    pub scales: Scales,
+    pub quats: Quats,
+    pub sh0: Sh0,
+    pub sh_n: Option<ShN>,
 }
 
 #[derive(Debug, Clone)]
@@ -95,4 +128,15 @@ pub struct ShN {
     pub codebook: Codebook,
     pub labels: ImageData,
     pub centroids: ImageData,
+}
+
+#[derive(Debug, Clone)]
+pub struct Splat {
+    pub count: usize,
+    pub antialias: bool,
+    pub position: Vec<Vector3>,
+    pub rotation: Vec<Quaternion>,
+    pub scale: Vec<Vector3>,
+    pub color: Vec<Color4>,
+    pub sh_n: Option<Vec<Color3>>,
 }
