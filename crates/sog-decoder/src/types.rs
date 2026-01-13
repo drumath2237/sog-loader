@@ -107,9 +107,10 @@ pub struct ShN {
 pub struct Splat {
     pub count: usize,
     pub antialias: bool,
+    pub sh_degree: usize,
     pub position: Vec<f32>,
     pub rotation: Vec<f32>,
     pub scale: Vec<f32>,
     pub color: Vec<f32>,
-    pub sh_n: Option<Vec<f32>>,
+    pub sh: Option<Vec<f32>>,
 }

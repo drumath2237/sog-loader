@@ -388,13 +388,14 @@ fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
         rotation: decode_rotations(quats, count)?,
         scale: decode_scales(scales, count)?,
         color: decode_color(sh0, count)?,
-        sh_n: if let Some(s) = sh_n {
+        sh: if let Some(s) = sh_n {
             Some(decode_sh_n(s, count)?)
         } else {
             None
         },
         count,
         antialias: sog_data.antialias,
+        sh_degree: sh_n.as_ref().map(|s| s.bands as usize).unwrap_or(0usize),
     };
 
     Ok(splat)
