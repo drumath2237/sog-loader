@@ -28,11 +28,15 @@ pub fn unzip(file_data: &[u8]) -> Result<HashMap<String, Vec<u8>>> {
 pub fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
     let meta_bytes = files.get("meta.json").ok_or(Error::MetaJsonNotFound)?;
 
-    let meta_json_string = String::from_utf8(meta_bytes.clone())
+    let meta_json_string = str::from_utf8(meta_bytes)
         .map_err(|_| Error::InvalidMetaJson("encoding is not utf8".to_string()))?;
 
-    let meta_json = serde_json::from_str::<MetaJsonType>(meta_json_string.as_str())
+    let meta_json = serde_json::from_str::<MetaJsonType>(meta_json_string)
         .map_err(Error::DeserializeMetaJson)?;
+
+    if meta_json.version != 2 {
+        return Err(Error::InvalidMetaJson("version is not 2".to_string()));
+    }
 
     let means_l_name = meta_json.means.files.get(0).ok_or(Error::InvalidMetaJson(
         "missing means_l file name".to_string(),
@@ -307,7 +311,7 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<Color3>> {
         codebook,
         centroids,
         labels,
-        ..
+        count: _,
     } = sh_n;
 
     if *bands <= 0 || *bands >= 4 {
@@ -350,7 +354,10 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<Color3>> {
         1 => 3,
         2 => 8,
         3 => 15,
-        _ => unreachable!(),
+        _ => Err(DecodeError::InvalidData(format!(
+            "invalid sh bands:{}",
+            bands
+        )))?,
     };
 
     let mut sh_n_s: Vec<Color3> = vec![Color3::default(); palette_indices.len() * coeff_count];
@@ -369,7 +376,7 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<Color3>> {
     Ok(sh_n_s)
 }
 
-pub fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
+fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
     let SogDataV2 {
         means,
         quats,
@@ -387,13 +394,21 @@ pub fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
         scale: decode_scales(scales, count)?,
         color: decode_color(sh0, count)?,
         sh_n: if let Some(s) = sh_n {
-            Some(decode_sh_n(&s, count)?)
+            Some(decode_sh_n(s, count)?)
         } else {
             None
         },
         count,
         antialias: sog_data.antialias,
     };
+
+    Ok(splat)
+}
+
+pub fn decode(sog_file: &[u8]) -> Result<Splat> {
+    let unzipped = unzip(sog_file)?;
+    let sog_data = parse_sog(unzipped)?;
+    let splat = decode_sog(&sog_data)?;
 
     Ok(splat)
 }
