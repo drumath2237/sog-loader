@@ -122,7 +122,7 @@ pub fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
     })
 }
 
-fn decode_positions(means: &Means) -> DecodeResult<Vec<Vector3>> {
+fn decode_positions(means: &Means, count: usize) -> DecodeResult<Vec<Vector3>> {
     let Means {
         mins,
         maxs,
@@ -163,7 +163,7 @@ fn decode_positions(means: &Means) -> DecodeResult<Vec<Vector3>> {
         )));
     }
 
-    let mut positions = vec![Vector3::default(); lower_pixels.len() / 4];
+    let mut positions = vec![Vector3::default(); count];
     for i in 0..positions.len() {
         let pos_x = ((upper_pixels[i * 4 + 0] as u16) << 8) | (lower_pixels[i * 4 + 0] as u16);
         let pos_y = ((upper_pixels[i * 4 + 1] as u16) << 8) | (lower_pixels[i * 4 + 1] as u16);
@@ -186,7 +186,7 @@ fn decode_positions(means: &Means) -> DecodeResult<Vec<Vector3>> {
     Ok(positions)
 }
 
-fn decode_rotations(quats: &Quats) -> DecodeResult<Vec<Quaternion>> {
+fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<Quaternion>> {
     let cursor = Cursor::new(&quats.0);
     let mut decoder = WebPDecoder::new(cursor)?;
     let output_size = decoder
@@ -199,11 +199,8 @@ fn decode_rotations(quats: &Quats) -> DecodeResult<Vec<Quaternion>> {
         (x / 255.0 - 0.5) * 0.2 / f32::sqrt(2.0)
     }
 
-    let mut rotations = vec![Quaternion::default(); pixels.len() / 4];
+    let mut rotations = vec![Quaternion::default(); count];
 
-    println!("pixels len: {}", pixels.len());
-    println!("rotations len: {}", rotations.len());
-    
     for i in 0..rotations.len() {
         let a = to_comp(pixels[i * 4 + 0] as f32);
         let b = to_comp(pixels[i * 4 + 1] as f32);
@@ -241,7 +238,7 @@ fn decode_rotations(quats: &Quats) -> DecodeResult<Vec<Quaternion>> {
     Ok(rotations)
 }
 
-fn decode_scales(scales: &Scales) -> DecodeResult<Vec<Vector3>> {
+fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<Vector3>> {
     let Scales { codebook, scales } = scales;
 
     let cursor = Cursor::new(scales);
@@ -259,7 +256,7 @@ fn decode_scales(scales: &Scales) -> DecodeResult<Vec<Vector3>> {
         )));
     }
 
-    let mut scales = vec![Vector3::default(); pixels.len() / 4];
+    let mut scales = vec![Vector3::default(); count];
     for i in 0..scales.len() {
         scales[i] = Vector3::new(
             codebook.0[pixels[i * 4 + 0] as usize],
@@ -271,7 +268,7 @@ fn decode_scales(scales: &Scales) -> DecodeResult<Vec<Vector3>> {
     Ok(scales)
 }
 
-fn decode_color(sh0: &Sh0) -> DecodeResult<Vec<Color4>> {
+fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<Color4>> {
     const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
 
     let Sh0 { codebook, sh0 } = sh0;
@@ -291,7 +288,7 @@ fn decode_color(sh0: &Sh0) -> DecodeResult<Vec<Color4>> {
         )));
     }
 
-    let mut colors = vec![Color4::default(); pixels.len() / 4];
+    let mut colors = vec![Color4::default(); count];
     for i in 0..colors.len() {
         colors[i] = Color4::new(
             SH_C0 * codebook.0[pixels[i * 4 + 0] as usize],
@@ -304,13 +301,13 @@ fn decode_color(sh0: &Sh0) -> DecodeResult<Vec<Color4>> {
     Ok(colors)
 }
 
-fn decode_sh_n(sh_n: &ShN) -> DecodeResult<Vec<Color3>> {
+fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<Color3>> {
     let ShN {
-        count: _,
         bands,
         codebook,
         centroids,
         labels,
+        ..
     } = sh_n;
 
     if *bands <= 0 || *bands >= 4 {
@@ -342,7 +339,7 @@ fn decode_sh_n(sh_n: &ShN) -> DecodeResult<Vec<Color3>> {
         ));
     }
 
-    let mut palette_indices: Vec<u16> = vec![0u16; labels_pixels.len() / 4];
+    let mut palette_indices: Vec<u16> = vec![0u16; count];
     for i in 0..palette_indices.len() {
         palette_indices[i] =
             (labels_pixels[i * 4 + 0] as u16) | ((labels_pixels[i * 4 + 1] as u16) << 8);
@@ -379,22 +376,23 @@ pub fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
         scales,
         sh0,
         sh_n,
-        count,
-        antialias,
+        ..
     } = sog_data;
 
+    let count = sog_data.count as usize;
+
     let splat = Splat {
-        position: decode_positions(means)?,
-        rotation: decode_rotations(quats)?,
-        scale: decode_scales(scales)?,
-        color: decode_color(sh0)?,
+        position: decode_positions(means, count)?,
+        rotation: decode_rotations(quats, count)?,
+        scale: decode_scales(scales, count)?,
+        color: decode_color(sh0, count)?,
         sh_n: if let Some(s) = sh_n {
-            Some(decode_sh_n(&s)?)
+            Some(decode_sh_n(&s, count)?)
         } else {
             None
         },
-        count: count.clone() as usize,
-        antialias: antialias.clone(),
+        count,
+        antialias: sog_data.antialias,
     };
 
     Ok(splat)
