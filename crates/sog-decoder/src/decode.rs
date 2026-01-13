@@ -166,7 +166,7 @@ fn decode_positions(means: &Means, count: usize) -> DecodeResult<Vec<f32>> {
     }
 
     let mut positions = vec![0f32; count * 3];
-    for i in 0..positions.len() / 3 {
+    for i in 0..count {
         let pos_x = ((upper_pixels[i * 4 + 0] as u16) << 8) | (lower_pixels[i * 4 + 0] as u16);
         let pos_y = ((upper_pixels[i * 4 + 1] as u16) << 8) | (lower_pixels[i * 4 + 1] as u16);
         let pos_z = ((upper_pixels[i * 4 + 2] as u16) << 8) | (lower_pixels[i * 4 + 2] as u16);
@@ -202,7 +202,7 @@ fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<f32>> {
 
     let mut rotations = vec![0f32; count * 4];
 
-    for i in 0..rotations.len() / 4 {
+    for i in 0..count {
         let a = to_comp(pixels[i * 4 + 0] as f32);
         let b = to_comp(pixels[i * 4 + 1] as f32);
         let c = to_comp(pixels[i * 4 + 2] as f32);
@@ -262,7 +262,7 @@ fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<f32>> {
     }
 
     let mut scales = vec![0f32; count * 3];
-    for i in 0..scales.len() / 3 {
+    for i in 0..count {
         scales[i * 3 + 0] = codebook.0[pixels[i * 4 + 0] as usize];
         scales[i * 3 + 1] = codebook.0[pixels[i * 4 + 1] as usize];
         scales[i * 3 + 2] = codebook.0[pixels[i * 4 + 2] as usize];
@@ -292,7 +292,7 @@ fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
     }
 
     let mut colors = vec![0f32; count * 4];
-    for i in 0..colors.len() / 4 {
+    for i in 0..count {
         colors[i * 4 + 0] = SH_C0 * codebook.0[pixels[i * 4 + 0] as usize];
         colors[i * 4 + 1] = SH_C0 * codebook.0[pixels[i * 4 + 1] as usize];
         colors[i * 4 + 2] = SH_C0 * codebook.0[pixels[i * 4 + 2] as usize];
@@ -357,8 +357,8 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<f32>> {
         )))?,
     };
 
-    let mut sh_n_s = vec![0f32; palette_indices.len() * coeff_count * 3];
-    for i in 0..palette_indices.len() / 3 {
+    let mut sh_n_s = vec![0f32; count * coeff_count * 3];
+    for i in 0..count {
         let palette_index = palette_indices[i] as usize;
         for coeff_index in 0..coeff_count {
             let index = i * coeff_count + coeff_index;
