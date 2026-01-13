@@ -1,8 +1,6 @@
 ﻿use crate::error::{DecodeError, DecodeResult, Error, ParseError, Result};
 use crate::metajson::MetaJsonType;
-use crate::types::{
-    Color3, Color4, Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Splat, Vector3,
-};
+use crate::types::{Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Splat};
 use image_webp::WebPDecoder;
 use std::collections::HashMap;
 use std::io::{Cursor, Read};
@@ -28,11 +26,15 @@ pub fn unzip(file_data: &[u8]) -> Result<HashMap<String, Vec<u8>>> {
 pub fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
     let meta_bytes = files.get("meta.json").ok_or(Error::MetaJsonNotFound)?;
 
-    let meta_json_string = String::from_utf8(meta_bytes.clone())
+    let meta_json_string = str::from_utf8(meta_bytes)
         .map_err(|_| Error::InvalidMetaJson("encoding is not utf8".to_string()))?;
 
-    let meta_json = serde_json::from_str::<MetaJsonType>(meta_json_string.as_str())
+    let meta_json = serde_json::from_str::<MetaJsonType>(meta_json_string)
         .map_err(Error::DeserializeMetaJson)?;
+
+    if meta_json.version != 2 {
+        return Err(Error::InvalidMetaJson("version is not 2".to_string()));
+    }
 
     let means_l_name = meta_json.means.files.get(0).ok_or(Error::InvalidMetaJson(
         "missing means_l file name".to_string(),
@@ -122,7 +124,7 @@ pub fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
     })
 }
 
-fn decode_positions(means: &Means, count: usize) -> DecodeResult<Vec<Vector3>> {
+fn decode_positions(means: &Means, count: usize) -> DecodeResult<Vec<f32>> {
     let Means {
         mins,
         maxs,
@@ -163,8 +165,8 @@ fn decode_positions(means: &Means, count: usize) -> DecodeResult<Vec<Vector3>> {
         )));
     }
 
-    let mut positions = vec![Vector3::default(); count];
-    for i in 0..positions.len() {
+    let mut positions = vec![0f32; count * 3];
+    for i in 0..count {
         let pos_x = ((upper_pixels[i * 4 + 0] as u16) << 8) | (lower_pixels[i * 4 + 0] as u16);
         let pos_y = ((upper_pixels[i * 4 + 1] as u16) << 8) | (lower_pixels[i * 4 + 1] as u16);
         let pos_z = ((upper_pixels[i * 4 + 2] as u16) << 8) | (lower_pixels[i * 4 + 2] as u16);
@@ -176,17 +178,16 @@ fn decode_positions(means: &Means, count: usize) -> DecodeResult<Vec<Vector3>> {
             f32::signum(x) * (f32::exp(f32::abs(x)) - 1.0)
         }
 
-        positions[i] = Vector3::new(
-            unlog(lerp(mins.x, maxs.x, pos_x as f32 / 65535.0)),
-            unlog(lerp(mins.y, maxs.y, pos_y as f32 / 65535.0)),
-            unlog(lerp(mins.z, maxs.z, pos_z as f32 / 65535.0)),
-        );
+        positions[i * 3 + 0] = unlog(lerp(mins.x, maxs.x, pos_x as f32 / 65535.0));
+        positions[i * 3 + 1] = unlog(lerp(mins.y, maxs.y, pos_y as f32 / 65535.0));
+        positions[i * 3 + 2] = unlog(lerp(mins.z, maxs.z, pos_z as f32 / 65535.0));
     }
 
     Ok(positions)
 }
 
-fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<Quaternion>> {
+/// return: f32(x,y,z,w)
+fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<f32>> {
     let cursor = Cursor::new(&quats.0);
     let mut decoder = WebPDecoder::new(cursor)?;
     let output_size = decoder
@@ -199,9 +200,9 @@ fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<Quaternion>
         (x / 255.0 - 0.5) * 0.2 / f32::sqrt(2.0)
     }
 
-    let mut rotations = vec![Quaternion::default(); count];
+    let mut rotations = vec![0f32; count * 4];
 
-    for i in 0..rotations.len() {
+    for i in 0..count {
         let a = to_comp(pixels[i * 4 + 0] as f32);
         let b = to_comp(pixels[i * 4 + 1] as f32);
         let c = to_comp(pixels[i * 4 + 2] as f32);
@@ -226,19 +227,23 @@ fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<Quaternion>
         }?;
         let d = f32::sqrt(f32::max(0.0, 1.0 - a * a - b * b - c * c));
 
-        rotations[i] = match mode {
+        let q = match mode {
             0 => Quaternion::new(d, a, b, c),
             1 => Quaternion::new(a, d, b, c),
             2 => Quaternion::new(a, b, d, c),
             3 => Quaternion::new(a, b, c, d),
             _ => unreachable!(),
-        }
+        };
+        rotations[i * 4 + 0] = q.x;
+        rotations[i * 4 + 1] = q.y;
+        rotations[i * 4 + 2] = q.z;
+        rotations[i * 4 + 3] = q.w;
     }
 
     Ok(rotations)
 }
 
-fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<Vector3>> {
+fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<f32>> {
     let Scales { codebook, scales } = scales;
 
     let cursor = Cursor::new(scales);
@@ -256,19 +261,17 @@ fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<Vector3>> {
         )));
     }
 
-    let mut scales = vec![Vector3::default(); count];
-    for i in 0..scales.len() {
-        scales[i] = Vector3::new(
-            codebook.0[pixels[i * 4 + 0] as usize],
-            codebook.0[pixels[i * 4 + 1] as usize],
-            codebook.0[pixels[i * 4 + 2] as usize],
-        );
+    let mut scales = vec![0f32; count * 3];
+    for i in 0..count {
+        scales[i * 3 + 0] = codebook.0[pixels[i * 4 + 0] as usize];
+        scales[i * 3 + 1] = codebook.0[pixels[i * 4 + 1] as usize];
+        scales[i * 3 + 2] = codebook.0[pixels[i * 4 + 2] as usize];
     }
 
     Ok(scales)
 }
 
-fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<Color4>> {
+fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
     const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
 
     let Sh0 { codebook, sh0 } = sh0;
@@ -288,26 +291,24 @@ fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<Color4>> {
         )));
     }
 
-    let mut colors = vec![Color4::default(); count];
-    for i in 0..colors.len() {
-        colors[i] = Color4::new(
-            SH_C0 * codebook.0[pixels[i * 4 + 0] as usize],
-            SH_C0 * codebook.0[pixels[i * 4 + 1] as usize],
-            SH_C0 * codebook.0[pixels[i * 4 + 2] as usize],
-            pixels[i * 4 + 3] as f32 / 255.0,
-        )
+    let mut colors = vec![0f32; count * 4];
+    for i in 0..count {
+        colors[i * 4 + 0] = SH_C0 * codebook.0[pixels[i * 4 + 0] as usize];
+        colors[i * 4 + 1] = SH_C0 * codebook.0[pixels[i * 4 + 1] as usize];
+        colors[i * 4 + 2] = SH_C0 * codebook.0[pixels[i * 4 + 2] as usize];
+        colors[i * 4 + 3] = pixels[i * 4 + 3] as f32 / 255.0;
     }
 
     Ok(colors)
 }
 
-fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<Color3>> {
+fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<f32>> {
     let ShN {
         bands,
         codebook,
         centroids,
         labels,
-        ..
+        count: _,
     } = sh_n;
 
     if *bands <= 0 || *bands >= 4 {
@@ -350,26 +351,27 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<Color3>> {
         1 => 3,
         2 => 8,
         3 => 15,
-        _ => unreachable!(),
+        _ => Err(DecodeError::InvalidData(format!(
+            "invalid sh bands:{}",
+            bands
+        )))?,
     };
 
-    let mut sh_n_s: Vec<Color3> = vec![Color3::default(); palette_indices.len() * coeff_count];
-    for i in 0..palette_indices.len() {
+    let mut sh_n_s = vec![0f32; count * coeff_count * 3];
+    for i in 0..count {
         let palette_index = palette_indices[i] as usize;
         for coeff_index in 0..coeff_count {
             let index = i * coeff_count + coeff_index;
-            sh_n_s[index] = Color3::new(
-                codebook.0[centroids_pixels[palette_index * 4 + 0] as usize],
-                codebook.0[centroids_pixels[palette_index * 4 + 1] as usize],
-                codebook.0[centroids_pixels[palette_index * 4 + 2] as usize],
-            )
+            sh_n_s[index * 3 + 0] = codebook.0[centroids_pixels[palette_index * 4 + 0] as usize];
+            sh_n_s[index * 3 + 1] = codebook.0[centroids_pixels[palette_index * 4 + 1] as usize];
+            sh_n_s[index * 3 + 2] = codebook.0[centroids_pixels[palette_index * 4 + 2] as usize];
         }
     }
 
     Ok(sh_n_s)
 }
 
-pub fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
+fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
     let SogDataV2 {
         means,
         quats,
@@ -386,14 +388,23 @@ pub fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
         rotation: decode_rotations(quats, count)?,
         scale: decode_scales(scales, count)?,
         color: decode_color(sh0, count)?,
-        sh_n: if let Some(s) = sh_n {
-            Some(decode_sh_n(&s, count)?)
+        sh: if let Some(s) = sh_n {
+            Some(decode_sh_n(s, count)?)
         } else {
             None
         },
         count,
         antialias: sog_data.antialias,
+        sh_degree: sh_n.as_ref().map(|s| s.bands as usize).unwrap_or(0usize),
     };
+
+    Ok(splat)
+}
+
+pub fn decode(sog_file: &[u8]) -> Result<Splat> {
+    let unzipped = unzip(sog_file)?;
+    let sog_data = parse_sog(unzipped)?;
+    let splat = decode_sog(&sog_data)?;
 
     Ok(splat)
 }

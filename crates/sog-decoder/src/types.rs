@@ -40,33 +40,6 @@ impl Quaternion {
     }
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct Color4 {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
-    pub a: f32,
-}
-
-impl Color4 {
-    pub fn new(r: f32, g: f32, b: f32, a: f32) -> Self {
-        Self { r, g, b, a }
-    }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct Color3 {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
-}
-
-impl Color3 {
-    pub fn new(r: f32, g: f32, b: f32) -> Self {
-        Self { r, g, b }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct SogDataV2 {
     pub count: u32,
@@ -134,9 +107,10 @@ pub struct ShN {
 pub struct Splat {
     pub count: usize,
     pub antialias: bool,
-    pub position: Vec<Vector3>,
-    pub rotation: Vec<Quaternion>,
-    pub scale: Vec<Vector3>,
-    pub color: Vec<Color4>,
-    pub sh_n: Option<Vec<Color3>>,
+    pub sh_degree: usize,
+    pub position: Vec<f32>,
+    pub rotation: Vec<f32>,
+    pub scale: Vec<f32>,
+    pub color: Vec<f32>,
+    pub sh: Option<Vec<f32>>,
 }
