@@ -27,6 +27,8 @@ pub enum ParseError {
     ImageNotFound(String),
 }
 
+pub type ParseResult<T> = core::result::Result<T, ParseError>;
+
 #[derive(Debug, thiserror::Error)]
 pub enum DecodeError {
     #[error("Image not found: {0}")]

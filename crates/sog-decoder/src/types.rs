@@ -26,20 +26,6 @@ impl TryFrom<Vec<f32>> for Vector3 {
     }
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct Quaternion {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
-}
-
-impl Quaternion {
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
-        Self { x, y, z, w }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct SogDataV2 {
     pub count: u32,
@@ -69,7 +55,7 @@ impl TryFrom<&[f32]> for Codebook {
     }
 }
 
-type ImageData = Vec<u8>;
+pub type ImageData = Vec<u8>;
 
 #[derive(Debug, Clone)]
 pub struct Means {

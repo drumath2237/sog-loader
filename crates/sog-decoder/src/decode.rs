@@ -1,6 +1,6 @@
 ﻿use crate::error::{DecodeError, DecodeResult, Error, ParseError, Result};
 use crate::metajson::MetaJsonType;
-use crate::types::{Means, Quaternion, Quats, Scales, Sh0, ShN, SogDataV2, Splat};
+use crate::types::{Means, Quats, Scales, Sh0, ShN, SogDataV2, Splat};
 use image_webp::WebPDecoder;
 use std::collections::HashMap;
 use std::io::{Cursor, Read};
@@ -228,16 +228,16 @@ fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<f32>> {
         let d = f32::sqrt(f32::max(0.0, 1.0 - a * a - b * b - c * c));
 
         let q = match mode {
-            0 => Quaternion::new(d, a, b, c),
-            1 => Quaternion::new(a, d, b, c),
-            2 => Quaternion::new(a, b, d, c),
-            3 => Quaternion::new(a, b, c, d),
+            0 => [d, a, b, c],
+            1 => [a, d, b, c],
+            2 => [a, b, d, c],
+            3 => [a, b, c, d],
             _ => unreachable!(),
         };
-        rotations[i * 4 + 0] = q.x;
-        rotations[i * 4 + 1] = q.y;
-        rotations[i * 4 + 2] = q.z;
-        rotations[i * 4 + 3] = q.w;
+        rotations[i * 4 + 0] = q[0];
+        rotations[i * 4 + 1] = q[1];
+        rotations[i * 4 + 2] = q[2];
+        rotations[i * 4 + 3] = q[3];
     }
 
     Ok(rotations)

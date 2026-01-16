@@ -1,6 +1,6 @@
 mod decode;
-mod error;
 mod metajson;
-mod types;
 
+pub mod error;
+pub mod types;
 pub use decode::{decode, unpack};
