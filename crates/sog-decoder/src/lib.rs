@@ -3,4 +3,4 @@ mod error;
 mod metajson;
 mod types;
 
-pub use decode::decode;
+pub use decode::{decode, unpack};

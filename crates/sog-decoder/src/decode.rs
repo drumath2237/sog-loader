@@ -8,7 +8,7 @@ use zip::ZipArchive;
 use zip::result::ZipError;
 
 /// Unzip a zip file and return a HashMap of file names and their contents.
-pub fn unzip(file_data: &[u8]) -> Result<HashMap<String, Vec<u8>>> {
+fn unzip(file_data: &[u8]) -> Result<HashMap<String, Vec<u8>>> {
     let cursor = Cursor::new(file_data);
     let mut archive = ZipArchive::new(cursor)?;
     let mut files = HashMap::new();
@@ -23,7 +23,7 @@ pub fn unzip(file_data: &[u8]) -> Result<HashMap<String, Vec<u8>>> {
     Ok(files)
 }
 
-pub fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
+fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
     let meta_bytes = files.get("meta.json").ok_or(Error::MetaJsonNotFound)?;
 
     let meta_json_string = str::from_utf8(meta_bytes)
@@ -371,7 +371,13 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<f32>> {
     Ok(sh_n_s)
 }
 
-fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
+pub fn unpack(file: &[u8]) -> Result<SogDataV2> {
+    let files = unzip(file)?;
+    let sog_data = parse_sog(files)?;
+    Ok(sog_data)
+}
+
+pub fn decode(sog_data: &SogDataV2) -> Result<Splat> {
     let SogDataV2 {
         means,
         quats,
@@ -397,14 +403,6 @@ fn decode_sog(sog_data: &SogDataV2) -> Result<Splat> {
         antialias: sog_data.antialias,
         sh_degree: sh_n.as_ref().map(|s| s.bands as usize).unwrap_or(0usize),
     };
-
-    Ok(splat)
-}
-
-pub fn decode(sog_file: &[u8]) -> Result<Splat> {
-    let unzipped = unzip(sog_file)?;
-    let sog_data = parse_sog(unzipped)?;
-    let splat = decode_sog(&sog_data)?;
 
     Ok(splat)
 }
