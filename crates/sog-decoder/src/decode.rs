@@ -1,4 +1,6 @@
-﻿use crate::error::{DecodeError, DecodeResult, Error, ParseError, Result};
+﻿use crate::error::{
+    DecodeError, DecodeResult, Error, ParseError, ParseResult, Result, UnzipResult,
+};
 use crate::metajson::MetaJsonType;
 use crate::types::{Means, Quats, Scales, Sh0, ShN, SogDataV2, Splat};
 use image_webp::WebPDecoder;
@@ -8,7 +10,7 @@ use zip::ZipArchive;
 use zip::result::ZipError;
 
 /// Unzip a zip file and return a HashMap of file names and their contents.
-fn unzip(file_data: &[u8]) -> Result<HashMap<String, Vec<u8>>> {
+fn unzip(file_data: &[u8]) -> UnzipResult<HashMap<String, Vec<u8>>> {
     let cursor = Cursor::new(file_data);
     let mut archive = ZipArchive::new(cursor)?;
     let mut files = HashMap::new();
@@ -23,25 +25,33 @@ fn unzip(file_data: &[u8]) -> Result<HashMap<String, Vec<u8>>> {
     Ok(files)
 }
 
-fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
-    let meta_bytes = files.get("meta.json").ok_or(Error::MetaJsonNotFound)?;
+fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
+    let meta_bytes = files.get("meta.json").ok_or(ParseError::MetaJsonNotFound)?;
 
     let meta_json_string = str::from_utf8(meta_bytes)
-        .map_err(|_| Error::InvalidMetaJson("encoding is not utf8".to_string()))?;
+        .map_err(|_| ParseError::InvalidMetaJson("encoding is not utf8".to_string()))?;
 
     let meta_json = serde_json::from_str::<MetaJsonType>(meta_json_string)
-        .map_err(Error::DeserializeMetaJson)?;
+        .map_err(ParseError::DeserializeMetaJson)?;
 
     if meta_json.version != 2 {
-        return Err(Error::InvalidMetaJson("version is not 2".to_string()));
+        return Err(ParseError::InvalidMetaJson("version is not 2".to_string()));
     }
 
-    let means_l_name = meta_json.means.files.get(0).ok_or(Error::InvalidMetaJson(
-        "missing means_l file name".to_string(),
-    ))?;
-    let means_u_name = meta_json.means.files.get(1).ok_or(Error::InvalidMetaJson(
-        "missing means_u file name".to_string(),
-    ))?;
+    let means_l_name = meta_json
+        .means
+        .files
+        .get(0)
+        .ok_or(ParseError::InvalidMetaJson(
+            "missing means_l file name".to_string(),
+        ))?;
+    let means_u_name = meta_json
+        .means
+        .files
+        .get(1)
+        .ok_or(ParseError::InvalidMetaJson(
+            "missing means_u file name".to_string(),
+        ))?;
     let means = Means {
         mins: meta_json.means.mins.try_into()?,
         maxs: meta_json.means.maxs.try_into()?,
@@ -55,9 +65,13 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
             .clone(),
     };
 
-    let scales_name = meta_json.scales.files.get(0).ok_or(Error::InvalidMetaJson(
-        "missing scales file name".to_string(),
-    ))?;
+    let scales_name = meta_json
+        .scales
+        .files
+        .get(0)
+        .ok_or(ParseError::InvalidMetaJson(
+            "missing scales file name".to_string(),
+        ))?;
     let scales = Scales {
         codebook: meta_json.scales.codebook.as_slice().try_into()?,
         scales: files
@@ -66,9 +80,13 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
             .clone(),
     };
 
-    let quats_name = meta_json.quats.files.get(0).ok_or(Error::InvalidMetaJson(
-        "missing quats file name".to_string(),
-    ))?;
+    let quats_name = meta_json
+        .quats
+        .files
+        .get(0)
+        .ok_or(ParseError::InvalidMetaJson(
+            "missing quats file name".to_string(),
+        ))?;
     let quats = Quats(
         files
             .get(quats_name)
@@ -80,7 +98,9 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
         .sh0
         .files
         .get(0)
-        .ok_or(Error::InvalidMetaJson("missing sh0 file name".to_string()))?;
+        .ok_or(ParseError::InvalidMetaJson(
+            "missing sh0 file name".to_string(),
+        ))?;
     let sh0 = Sh0 {
         codebook: meta_json.sh0.codebook.as_slice().try_into()?,
         sh0: files
@@ -90,10 +110,10 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
     };
 
     let sh_n = if let Some(sh_n) = meta_json.sh_n {
-        let centroids_name = sh_n.files.get(0).ok_or(Error::InvalidMetaJson(
+        let centroids_name = sh_n.files.get(0).ok_or(ParseError::InvalidMetaJson(
             "missing centroids file name".to_string(),
         ))?;
-        let labels_name = sh_n.files.get(1).ok_or(Error::InvalidMetaJson(
+        let labels_name = sh_n.files.get(1).ok_or(ParseError::InvalidMetaJson(
             "missing labels file name".to_string(),
         ))?;
         Some(ShN {
@@ -122,6 +142,12 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> Result<SogDataV2> {
         sh0,
         sh_n,
     })
+}
+
+pub fn unpack(file: &[u8]) -> Result<SogDataV2> {
+    let files = unzip(file)?;
+    let sog_data = parse_sog(files)?;
+    Ok(sog_data)
 }
 
 fn decode_positions(means: &Means, count: usize) -> DecodeResult<Vec<f32>> {
@@ -369,12 +395,6 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<f32>> {
     }
 
     Ok(sh_n_s)
-}
-
-pub fn unpack(file: &[u8]) -> Result<SogDataV2> {
-    let files = unzip(file)?;
-    let sog_data = parse_sog(files)?;
-    Ok(sog_data)
 }
 
 pub fn decode(sog_data: &SogDataV2) -> Result<Splat> {

@@ -3,22 +3,34 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
+    #[error("Unzip error: {0}")]
+    Unzip(#[from] UnzipError),
+
+    #[error("Sog parse error: {0}")]
+    SogParse(#[from] ParseError),
+
+    #[error("Sog decode error: {0}")]
+    SogDecode(#[from] DecodeError),
+}
+
+pub type Result<T> = core::result::Result<T, Error>;
+
+#[derive(Debug, thiserror::Error)]
+pub enum UnzipError {
     #[error("Zip error: {0}")]
     Unzip(#[from] zip::result::ZipError),
+}
+
+pub type UnzipResult<T> = core::result::Result<T, UnzipError>;
+
+#[derive(thiserror::Error, Debug)]
+pub enum ParseError {
     #[error("meta.json not found")]
     MetaJsonNotFound,
     #[error("meta.json is invalid data: {0}")]
     InvalidMetaJson(String),
     #[error("Deserialize error: {0}")]
     DeserializeMetaJson(#[from] serde_json::Error),
-    #[error("Sog parse error: {0}")]
-    SogParse(#[from] ParseError),
-    #[error("Sog decode error: {0}")]
-    SogDecode(#[from] DecodeError),
-}
-
-#[derive(thiserror::Error, Debug)]
-pub enum ParseError {
     #[error("invalid vector data")]
     ParseVector(String),
     #[error("invalid codebook length")]
@@ -40,5 +52,3 @@ pub enum DecodeError {
 }
 
 pub type DecodeResult<T> = core::result::Result<T, DecodeError>;
-
-pub type Result<T> = core::result::Result<T, Error>;
