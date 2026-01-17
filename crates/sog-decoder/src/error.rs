@@ -3,13 +3,13 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("Unzip error: {0}")]
+    #[error("{0}")]
     Unzip(#[from] UnzipError),
 
-    #[error("Sog parse error: {0}")]
+    #[error("{0}")]
     SogParse(#[from] ParseError),
 
-    #[error("Sog decode error: {0}")]
+    #[error("{0}")]
     SogDecode(#[from] DecodeError),
 }
 
