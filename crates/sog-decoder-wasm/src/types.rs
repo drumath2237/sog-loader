@@ -1,4 +1,4 @@
-﻿use sog_decoder::types::{Codebook, Means, Quats, Scales, Sh0, ShN, SogDataV2, Splat, Vector3};
+use sog_decoder::types::{Codebook, Means, Quats, Scales, Sh0, ShN, SogDataV2, Splat, Vector3};
 use wasm_bindgen::JsError;
 use wasm_bindgen::prelude::wasm_bindgen;
 
