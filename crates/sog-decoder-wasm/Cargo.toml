@@ -5,3 +5,4 @@ version = "0.1.0"
 
 [dependencies]
 sog-decoder = {path = "../sog-decoder"}
+wasm-bindgen = "0.2.108"
