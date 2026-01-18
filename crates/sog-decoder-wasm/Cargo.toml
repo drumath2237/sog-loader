@@ -3,5 +3,9 @@ edition = "2024"
 name = "sog-decoder-wasm"
 version = "0.1.0"
 
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
 sog-decoder = {path = "../sog-decoder"}
+wasm-bindgen = "0.2.108"

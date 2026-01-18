@@ -1,6 +1,4 @@
-﻿use crate::error::{
-    DecodeError, DecodeResult, Error, ParseError, ParseResult, Result, UnzipResult,
-};
+﻿use crate::error::{DecodeError, DecodeResult, ParseError, ParseResult, Result, UnzipResult};
 use crate::metajson::MetaJsonType;
 use crate::types::{Means, Quats, Scales, Sh0, ShN, SogDataV2, Splat};
 use image_webp::WebPDecoder;
