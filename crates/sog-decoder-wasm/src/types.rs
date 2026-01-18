@@ -72,14 +72,16 @@ impl TryFrom<JsCodebook> for Codebook {
     type Error = JsError;
 
     fn try_from(js_codebook: JsCodebook) -> Result<Self, Self::Error> {
-        let vec = js_codebook.0;
-        if vec.len() == 256 {
-            let mut arr = [0.0f32; 256];
-            arr.copy_from_slice(&vec);
-            Ok(Codebook(arr))
-        } else {
-            Err(JsError::new("Codebook must have 256 elements"))
-        }
+        js_codebook
+            .0
+            .try_into()
+            .map(Codebook)
+            .map_err(|v: Vec<f32>| {
+                JsError::new(&format!(
+                    "Codebook must have 256 elements, but found {}",
+                    v.len()
+                ))
+            })
     }
 }
 
