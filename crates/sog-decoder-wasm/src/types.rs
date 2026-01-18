@@ -31,7 +31,7 @@ impl From<Splat> for JsSplat {
 }
 
 #[wasm_bindgen(js_name = "Vector3", getter_with_clone)]
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct JsVector3 {
     pub x: f32,
     pub y: f32,
