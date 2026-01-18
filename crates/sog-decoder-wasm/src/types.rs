@@ -1,4 +1,5 @@
 ﻿use sog_decoder::types::{Codebook, Means, Quats, Scales, Sh0, ShN, SogDataV2, Splat, Vector3};
+use wasm_bindgen::JsError;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 #[wasm_bindgen(js_name = "Splat", getter_with_clone)]
@@ -68,7 +69,7 @@ impl From<Codebook> for JsCodebook {
 }
 
 impl TryFrom<JsCodebook> for Codebook {
-    type Error = &'static str;
+    type Error = JsError;
 
     fn try_from(js_codebook: JsCodebook) -> Result<Self, Self::Error> {
         let vec = js_codebook.0;
@@ -77,7 +78,7 @@ impl TryFrom<JsCodebook> for Codebook {
             arr.copy_from_slice(&vec);
             Ok(Codebook(arr))
         } else {
-            Err("Codebook must have 256 elements")
+            Err(JsError::new("Codebook must have 256 elements"))
         }
     }
 }
@@ -147,12 +148,14 @@ impl From<Scales> for JsScales {
     }
 }
 
-impl From<JsScales> for Scales {
-    fn from(js_scales: JsScales) -> Self {
-        Self {
-            codebook: js_scales.codebook.try_into().expect("Invalid codebook"),
+impl TryFrom<JsScales> for Scales {
+    type Error = JsError;
+
+    fn try_from(js_scales: JsScales) -> Result<Self, Self::Error> {
+        Ok(Self {
+            codebook: js_scales.codebook.try_into()?,
             scales: js_scales.scales,
-        }
+        })
     }
 }
 
@@ -172,12 +175,14 @@ impl From<Sh0> for JsSh0 {
     }
 }
 
-impl From<JsSh0> for Sh0 {
-    fn from(js_sh0: JsSh0) -> Self {
-        Self {
-            codebook: js_sh0.codebook.try_into().expect("Invalid codebook"),
+impl TryFrom<JsSh0> for Sh0 {
+    type Error = JsError;
+
+    fn try_from(js_sh0: JsSh0) -> Result<Self, Self::Error> {
+        Ok(Self {
+            codebook: js_sh0.codebook.try_into()?,
             sh0: js_sh0.sh0,
-        }
+        })
     }
 }
 
@@ -203,15 +208,17 @@ impl From<ShN> for JsShN {
     }
 }
 
-impl From<JsShN> for ShN {
-    fn from(js_sh_n: JsShN) -> Self {
-        Self {
+impl TryFrom<JsShN> for ShN {
+    type Error = JsError;
+
+    fn try_from(js_sh_n: JsShN) -> Result<Self, Self::Error> {
+        Ok(Self {
             count: js_sh_n.count,
             bands: js_sh_n.bands,
-            codebook: js_sh_n.codebook.try_into().expect("Invalid codebook"),
+            codebook: js_sh_n.codebook.try_into()?,
             labels: js_sh_n.labels,
             centroids: js_sh_n.centroids,
-        }
+        })
     }
 }
 
@@ -242,16 +249,22 @@ impl From<SogDataV2> for JsSogDataV2 {
     }
 }
 
-impl From<&JsSogDataV2> for SogDataV2 {
-    fn from(js_sog_data: &JsSogDataV2) -> Self {
-        Self {
+impl TryFrom<&JsSogDataV2> for SogDataV2 {
+    type Error = JsError;
+
+    fn try_from(js_sog_data: &JsSogDataV2) -> Result<Self, Self::Error> {
+        Ok(Self {
             count: js_sog_data.count,
             antialias: js_sog_data.antialias,
             means: js_sog_data.means.clone().into(),
-            scales: js_sog_data.scales.clone().into(),
+            scales: js_sog_data.scales.clone().try_into()?,
             quats: js_sog_data.quats.clone().into(),
-            sh0: js_sog_data.sh0.clone().into(),
-            sh_n: js_sog_data.sh_n.clone().map(|sh_n| sh_n.into()),
-        }
+            sh0: js_sog_data.sh0.clone().try_into()?,
+            sh_n: js_sog_data
+                .sh_n
+                .clone()
+                .map(|sh_n| sh_n.try_into())
+                .transpose()?,
+        })
     }
 }
