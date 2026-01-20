@@ -251,22 +251,19 @@ impl From<SogDataV2> for JsSogDataV2 {
     }
 }
 
-impl TryFrom<&JsSogDataV2> for SogDataV2 {
+impl TryFrom<JsSogDataV2> for SogDataV2 {
     type Error = JsError;
 
-    fn try_from(js_sog_data: &JsSogDataV2) -> Result<Self, Self::Error> {
-        Ok(Self {
+    fn try_from(js_sog_data: JsSogDataV2) -> Result<Self, Self::Error> {
+        let sog = SogDataV2 {
             count: js_sog_data.count,
             antialias: js_sog_data.antialias,
-            means: js_sog_data.means.clone().into(),
-            scales: js_sog_data.scales.clone().try_into()?,
-            quats: js_sog_data.quats.clone().into(),
-            sh0: js_sog_data.sh0.clone().try_into()?,
-            sh_n: js_sog_data
-                .sh_n
-                .clone()
-                .map(|sh_n| sh_n.try_into())
-                .transpose()?,
-        })
+            means: js_sog_data.means.into(),
+            scales: js_sog_data.scales.try_into()?,
+            quats: js_sog_data.quats.into(),
+            sh0: js_sog_data.sh0.try_into()?,
+            sh_n: js_sog_data.sh_n.map(|sh_n| sh_n.try_into()).transpose()?,
+        };
+        Ok(sog)
     }
 }
