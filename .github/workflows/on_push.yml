@@ -18,6 +18,12 @@ jobs:
           toolchain: stable
           override: true
 
+      - name: Add wasm32 target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Install wasm-bindgen
+        run: cargo install wasm-bindgen-cli
+
       - name: Build sog-decoder
         run: cargo build --package sog-decoder
 
