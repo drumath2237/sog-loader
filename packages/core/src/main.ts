@@ -6,7 +6,7 @@ import sog_path from "../../../crates/sample_data/pizza.sog?url";
 async function main() {
   const sog_file = await fetch(sog_path).then((res) => res.arrayBuffer());
   const sog = a(new Uint8Array(sog_file));
-  const splat = b(sog);
+  using splat = b(sog);
 
   console.log(splat);
 }
