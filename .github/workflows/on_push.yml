@@ -18,22 +18,35 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Build Rust workspace
-        run: cargo build --workspace
+      - name: Add wasm32 target
+        run: rustup target add wasm32-unknown-unknown
 
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 20
-      #     cache: "pnpm"
+      - name: Install wasm-bindgen
+        run: cargo install wasm-bindgen-cli
 
-      # - name: Set up pnpm
-      #   uses: pnpm/action-setup@v3
-      #   with:
-      #     version: 9
+      - name: Build sog-decoder
+        run: cargo build --package sog-decoder
 
-      # - name: Install dependencies
-      #   run: pnpm install
+      - name: Build sog-decoder-wasm
+        run: |
+          cargo build \
+            --package sog-decoder-wasm \
+            --target wasm32-unknown-unknown
 
-      # - name: Build npm packages
-      #   run: pnpm -r build
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: wasm-bindgen
+        run: pnpm --filter @sog-loader/core run wasm:build
+
+      - name: Build npm packages
+        run: pnpm -r build
