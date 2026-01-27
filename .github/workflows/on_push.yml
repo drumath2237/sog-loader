@@ -21,19 +21,19 @@ jobs:
       - name: Build Rust workspace
         run: cargo build --workspace
 
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 20
-      #     cache: "pnpm"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
 
-      # - name: Set up pnpm
-      #   uses: pnpm/action-setup@v3
-      #   with:
-      #     version: 9
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
 
-      # - name: Install dependencies
-      #   run: pnpm install
+      - name: Install dependencies
+        run: pnpm install
 
-      # - name: Build npm packages
-      #   run: pnpm -r build
+      - name: Build npm packages
+        run: pnpm -r build
