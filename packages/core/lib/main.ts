@@ -1,9 +1,11 @@
-export function setupCounter(element: HTMLButtonElement) {
-  let counter = 0
-  const setCounter = (count: number) => {
-    counter = count
-    element.innerHTML = `count is ${counter}`
-  }
-  element.addEventListener('click', () => setCounter(++counter))
-  setCounter(0)
+import { decode, SogDataV2, unpack } from "./wasm/sog_decoder_wasm";
+
+export function a(file: Uint8Array) {
+  return unpack(file);
+}
+
+export function b(sog: SogDataV2) {
+  console.log(sog);
+
+  return decode(sog);
 }
