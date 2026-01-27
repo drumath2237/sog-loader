@@ -25,3 +25,5 @@ target
 # user
 
 .vscode/settings.json
+
+node_modules/
