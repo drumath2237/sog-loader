@@ -296,7 +296,7 @@ fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<f32>> {
 }
 
 fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
-    const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
+    // const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
 
     let Sh0 { codebook, sh0 } = sh0;
 
@@ -315,12 +315,21 @@ fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
         )));
     }
 
+    // https://github.com/playcanvas/splat-transform/blob/930a9aec511af3665240589b9cf1727d5dcd2eac/src/lib/readers/read-sog.ts#L174
+    fn sigmoid_inv(y: f32) -> f32 {
+        let e = y.clamp(1e-6, 1.0 - 1e-6);
+        (e / (1.0 - e)).ln()
+    }
+
     let mut colors = vec![0f32; count * 4];
     for i in 0..count {
-        colors[i * 4 + 0] = SH_C0 * codebook.0[pixels[i * 4 + 0] as usize] + 0.5;
-        colors[i * 4 + 1] = SH_C0 * codebook.0[pixels[i * 4 + 1] as usize] + 0.5;
-        colors[i * 4 + 2] = SH_C0 * codebook.0[pixels[i * 4 + 2] as usize] + 0.5;
-        colors[i * 4 + 3] = pixels[i * 4 + 3] as f32 / 255.0;
+        // colors[i * 4 + 0] = SH_C0 * codebook.0[pixels[i * 4 + 0] as usize] + 0.5;
+        // colors[i * 4 + 1] = SH_C0 * codebook.0[pixels[i * 4 + 1] as usize] + 0.5;
+        // colors[i * 4 + 2] = SH_C0 * codebook.0[pixels[i * 4 + 2] as usize] + 0.5;
+        colors[i * 4 + 0] = codebook.0[pixels[i * 4 + 0] as usize];
+        colors[i * 4 + 1] = codebook.0[pixels[i * 4 + 1] as usize];
+        colors[i * 4 + 2] = codebook.0[pixels[i * 4 + 2] as usize];
+        colors[i * 4 + 3] = sigmoid_inv(pixels[i * 4 + 3] as f32 / 255.0);
     }
 
     Ok(colors)
