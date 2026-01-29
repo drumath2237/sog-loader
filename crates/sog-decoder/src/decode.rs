@@ -221,7 +221,7 @@ fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<f32>> {
     decoder.read_image(&mut pixels)?;
 
     fn to_comp(x: f32) -> f32 {
-        (x / 255.0 - 0.5) * 0.2 / f32::sqrt(2.0)
+        (x / 255.0 - 0.5) * 2.0 / f32::sqrt(2.0)
     }
 
     let mut rotations = vec![0f32; count * 4];
