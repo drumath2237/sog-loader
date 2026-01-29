@@ -358,16 +358,10 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<f32>> {
     let mut labels_pixels = vec![0u8; output_size];
     decoder.read_image(&mut labels_pixels)?;
 
-    if centroids_pixels.len() % 4 != 0 || labels_pixels.len() % 4 != 0 {
+    if centroids_pixels.len() % 3 != 0 || labels_pixels.len() % 4 != 0 {
         return Err(DecodeError::InvalidSize(
             "invalid image dimensions".to_string(),
         ));
-    }
-
-    let mut palette_indices: Vec<u16> = vec![0u16; count];
-    for i in 0..palette_indices.len() {
-        palette_indices[i] =
-            (labels_pixels[i * 4 + 0] as u16) | ((labels_pixels[i * 4 + 1] as u16) << 8);
     }
 
     // calc number of coefficients
@@ -382,13 +376,17 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<f32>> {
     };
 
     let mut sh_n_s = vec![0f32; count * coeff_count * 3];
-    for i in 0..count {
-        let palette_index = palette_indices[i] as usize;
-        for coeff_index in 0..coeff_count {
-            let index = i * coeff_count + coeff_index;
-            sh_n_s[index * 3 + 0] = codebook.0[centroids_pixels[palette_index * 4 + 0] as usize];
-            sh_n_s[index * 3 + 1] = codebook.0[centroids_pixels[palette_index * 4 + 1] as usize];
-            sh_n_s[index * 3 + 2] = codebook.0[centroids_pixels[palette_index * 4 + 2] as usize];
+    for splat_index in 0..count {
+        let palette_index = ((labels_pixels[splat_index * 4 + 0] as u16)
+            | ((labels_pixels[splat_index * 4 + 1] as u16) << 8))
+            as usize;
+
+        for i in 0..3 {
+            for coeff_index in 0..coeff_count {
+                let index = (splat_index * 3 + i) * coeff_count + coeff_index;
+                let index2 = (palette_index * coeff_count + coeff_index) * 3 + i;
+                sh_n_s[index] = codebook.0[centroids_pixels[index2] as usize];
+            }
         }
     }
 
