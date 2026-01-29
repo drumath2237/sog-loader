@@ -221,7 +221,7 @@ fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<f32>> {
     decoder.read_image(&mut pixels)?;
 
     fn to_comp(x: f32) -> f32 {
-        (x / 255.0 - 0.5) * 0.2 / f32::sqrt(2.0)
+        (x / 255.0 - 0.5) * 2.0 / f32::sqrt(2.0)
     }
 
     let mut rotations = vec![0f32; count * 4];
@@ -296,7 +296,7 @@ fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<f32>> {
 }
 
 fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
-    const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
+    // const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
 
     let Sh0 { codebook, sh0 } = sh0;
 
@@ -315,12 +315,21 @@ fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
         )));
     }
 
+    // https://github.com/playcanvas/splat-transform/blob/930a9aec511af3665240589b9cf1727d5dcd2eac/src/lib/readers/read-sog.ts#L174
+    fn sigmoid_inv(y: f32) -> f32 {
+        let e = y.clamp(1e-6, 1.0 - 1e-6);
+        (e / (1.0 - e)).ln()
+    }
+
     let mut colors = vec![0f32; count * 4];
     for i in 0..count {
-        colors[i * 4 + 0] = SH_C0 * codebook.0[pixels[i * 4 + 0] as usize] + 0.5;
-        colors[i * 4 + 1] = SH_C0 * codebook.0[pixels[i * 4 + 1] as usize] + 0.5;
-        colors[i * 4 + 2] = SH_C0 * codebook.0[pixels[i * 4 + 2] as usize] + 0.5;
-        colors[i * 4 + 3] = pixels[i * 4 + 3] as f32 / 255.0;
+        // colors[i * 4 + 0] = SH_C0 * codebook.0[pixels[i * 4 + 0] as usize] + 0.5;
+        // colors[i * 4 + 1] = SH_C0 * codebook.0[pixels[i * 4 + 1] as usize] + 0.5;
+        // colors[i * 4 + 2] = SH_C0 * codebook.0[pixels[i * 4 + 2] as usize] + 0.5;
+        colors[i * 4 + 0] = codebook.0[pixels[i * 4 + 0] as usize];
+        colors[i * 4 + 1] = codebook.0[pixels[i * 4 + 1] as usize];
+        colors[i * 4 + 2] = codebook.0[pixels[i * 4 + 2] as usize];
+        colors[i * 4 + 3] = sigmoid_inv(pixels[i * 4 + 3] as f32 / 255.0);
     }
 
     Ok(colors)
@@ -358,16 +367,10 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<f32>> {
     let mut labels_pixels = vec![0u8; output_size];
     decoder.read_image(&mut labels_pixels)?;
 
-    if centroids_pixels.len() % 4 != 0 || labels_pixels.len() % 4 != 0 {
+    if centroids_pixels.len() % 3 != 0 || labels_pixels.len() % 4 != 0 {
         return Err(DecodeError::InvalidSize(
             "invalid image dimensions".to_string(),
         ));
-    }
-
-    let mut palette_indices: Vec<u16> = vec![0u16; count];
-    for i in 0..palette_indices.len() {
-        palette_indices[i] =
-            (labels_pixels[i * 4 + 0] as u16) | ((labels_pixels[i * 4 + 1] as u16) << 8);
     }
 
     // calc number of coefficients
@@ -382,13 +385,17 @@ fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<f32>> {
     };
 
     let mut sh_n_s = vec![0f32; count * coeff_count * 3];
-    for i in 0..count {
-        let palette_index = palette_indices[i] as usize;
-        for coeff_index in 0..coeff_count {
-            let index = i * coeff_count + coeff_index;
-            sh_n_s[index * 3 + 0] = codebook.0[centroids_pixels[palette_index * 4 + 0] as usize];
-            sh_n_s[index * 3 + 1] = codebook.0[centroids_pixels[palette_index * 4 + 1] as usize];
-            sh_n_s[index * 3 + 2] = codebook.0[centroids_pixels[palette_index * 4 + 2] as usize];
+    for splat_index in 0..count {
+        let palette_index = ((labels_pixels[splat_index * 4 + 0] as u16)
+            | ((labels_pixels[splat_index * 4 + 1] as u16) << 8))
+            as usize;
+
+        for i in 0..3 {
+            for coeff_index in 0..coeff_count {
+                let index = (splat_index * 3 + i) * coeff_count + coeff_index;
+                let index2 = (palette_index * coeff_count + coeff_index) * 3 + i;
+                sh_n_s[index] = codebook.0[centroids_pixels[index2] as usize];
+            }
         }
     }
 

@@ -5,7 +5,5 @@ export function a(file: Uint8Array) {
 }
 
 export function b(sog: SogDataV2) {
-  console.log(sog);
-
   return decode(sog);
 }
