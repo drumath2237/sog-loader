@@ -99,9 +99,9 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
         .ok_or(ParseError::InvalidMetaJson(
             "missing sh0 file name".to_string(),
         ))?;
-    let sh0 = Sh0 {
+    let sh_0 = Sh0 {
         codebook: meta_json.sh0.codebook.as_slice().try_into()?,
-        sh0: files
+        sh_0: files
             .get(sh0_name)
             .ok_or(ParseError::ImageNotFound(sh0_name.to_string()))?
             .clone(),
@@ -137,7 +137,7 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
         means,
         quats,
         scales,
-        sh0,
+        sh_0,
         sh_n,
     })
 }
@@ -295,10 +295,13 @@ fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<f32>> {
     Ok(scales)
 }
 
-fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
+fn decode_sh_0(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
     // const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
 
-    let Sh0 { codebook, sh0 } = sh0;
+    let Sh0 {
+        codebook,
+        sh_0: sh0,
+    } = sh0;
 
     let cursor = Cursor::new(sh0);
     let mut decoder = WebPDecoder::new(cursor)?;
@@ -407,7 +410,7 @@ pub fn decode(sog_data: &SogDataV2) -> Result<Splat> {
         means,
         quats,
         scales,
-        sh0,
+        sh_0,
         sh_n,
         ..
     } = sog_data;
@@ -418,8 +421,8 @@ pub fn decode(sog_data: &SogDataV2) -> Result<Splat> {
         position: decode_positions(means, count)?,
         rotation: decode_rotations(quats, count)?,
         scale: decode_scales(scales, count)?,
-        color: decode_color(sh0, count)?,
-        sh: if let Some(s) = sh_n {
+        sh_0: decode_sh_0(sh_0, count)?,
+        sh_n: if let Some(s) = sh_n {
             Some(decode_sh_n(s, count)?)
         } else {
             None

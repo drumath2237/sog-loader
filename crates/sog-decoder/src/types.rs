@@ -33,7 +33,7 @@ pub struct SogDataV2 {
     pub means: Means,
     pub scales: Scales,
     pub quats: Quats,
-    pub sh0: Sh0,
+    pub sh_0: Sh0,
     pub sh_n: Option<ShN>,
 }
 
@@ -77,7 +77,7 @@ pub struct Scales {
 #[derive(Debug, Clone)]
 pub struct Sh0 {
     pub codebook: Codebook,
-    pub sh0: ImageData,
+    pub sh_0: ImageData,
 }
 
 #[derive(Debug, Clone)]
@@ -97,6 +97,6 @@ pub struct Splat {
     pub position: Vec<f32>,
     pub rotation: Vec<f32>,
     pub scale: Vec<f32>,
-    pub color: Vec<f32>,
-    pub sh: Option<Vec<f32>>,
+    pub sh_0: Vec<f32>,
+    pub sh_n: Option<Vec<f32>>,
 }
