@@ -99,7 +99,7 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
         .ok_or(ParseError::InvalidMetaJson(
             "missing sh0 file name".to_string(),
         ))?;
-    let sh0 = Sh0 {
+    let sh_0 = Sh0 {
         codebook: meta_json.sh0.codebook.as_slice().try_into()?,
         sh_0: files
             .get(sh0_name)
@@ -137,7 +137,7 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
         means,
         quats,
         scales,
-        sh_0: sh0,
+        sh_0,
         sh_n,
     })
 }
@@ -410,7 +410,7 @@ pub fn decode(sog_data: &SogDataV2) -> Result<Splat> {
         means,
         quats,
         scales,
-        sh_0: sh0,
+        sh_0,
         sh_n,
         ..
     } = sog_data;
@@ -421,7 +421,7 @@ pub fn decode(sog_data: &SogDataV2) -> Result<Splat> {
         position: decode_positions(means, count)?,
         rotation: decode_rotations(quats, count)?,
         scale: decode_scales(scales, count)?,
-        sh_0: decode_sh_0(sh0, count)?,
+        sh_0: decode_sh_0(sh_0, count)?,
         sh_n: if let Some(s) = sh_n {
             Some(decode_sh_n(s, count)?)
         } else {

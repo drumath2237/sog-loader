@@ -11,7 +11,9 @@ pub struct JsSplat {
     pub position: Vec<f32>,
     pub rotation: Vec<f32>,
     pub scale: Vec<f32>,
+    #[wasm_bindgen(js_name = "sh0")]
     pub sh_0: Vec<f32>,
+    #[wasm_bindgen(js_name = "shN")]
     pub sh_n: Option<Vec<f32>>,
 }
 
@@ -232,6 +234,7 @@ pub struct JsSogDataV2 {
     pub means: JsMeans,
     pub scales: JsScales,
     pub quats: JsQuats,
+    #[wasm_bindgen(js_name = "sh0")]
     pub sh_0: JsSh0,
     #[wasm_bindgen(js_name = "shN")]
     pub sh_n: Option<JsShN>,
