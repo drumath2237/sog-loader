@@ -11,8 +11,8 @@ pub struct JsSplat {
     pub position: Vec<f32>,
     pub rotation: Vec<f32>,
     pub scale: Vec<f32>,
-    pub color: Vec<f32>,
-    pub sh: Option<Vec<f32>>,
+    pub sh_0: Vec<f32>,
+    pub sh_n: Option<Vec<f32>>,
 }
 
 impl From<Splat> for JsSplat {
@@ -24,8 +24,8 @@ impl From<Splat> for JsSplat {
             position: splat.position,
             rotation: splat.rotation,
             scale: splat.scale,
-            color: splat.sh_0,
-            sh: splat.sh_n,
+            sh_0: splat.sh_0,
+            sh_n: splat.sh_n,
         }
     }
 }
@@ -172,7 +172,7 @@ impl From<Sh0> for JsSh0 {
     fn from(sh0: Sh0) -> Self {
         Self {
             codebook: sh0.codebook.into(),
-            sh0: sh0.sh0,
+            sh0: sh0.sh_0,
         }
     }
 }
@@ -183,7 +183,7 @@ impl TryFrom<JsSh0> for Sh0 {
     fn try_from(js_sh0: JsSh0) -> Result<Self, Self::Error> {
         Ok(Self {
             codebook: js_sh0.codebook.try_into()?,
-            sh0: js_sh0.sh0,
+            sh_0: js_sh0.sh0,
         })
     }
 }
@@ -232,7 +232,7 @@ pub struct JsSogDataV2 {
     pub means: JsMeans,
     pub scales: JsScales,
     pub quats: JsQuats,
-    pub sh0: JsSh0,
+    pub sh_0: JsSh0,
     #[wasm_bindgen(js_name = "shN")]
     pub sh_n: Option<JsShN>,
 }
@@ -245,7 +245,7 @@ impl From<SogDataV2> for JsSogDataV2 {
             means: sog_data.means.into(),
             scales: sog_data.scales.into(),
             quats: sog_data.quats.into(),
-            sh0: sog_data.sh0.into(),
+            sh_0: sog_data.sh_0.into(),
             sh_n: sog_data.sh_n.map(|sh_n| sh_n.into()),
         }
     }
@@ -261,7 +261,7 @@ impl TryFrom<JsSogDataV2> for SogDataV2 {
             means: js_sog_data.means.into(),
             scales: js_sog_data.scales.try_into()?,
             quats: js_sog_data.quats.into(),
-            sh0: js_sog_data.sh0.try_into()?,
+            sh_0: js_sog_data.sh_0.try_into()?,
             sh_n: js_sog_data.sh_n.map(|sh_n| sh_n.try_into()).transpose()?,
         };
         Ok(sog)
