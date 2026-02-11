@@ -24,8 +24,8 @@ impl From<Splat> for JsSplat {
             position: splat.position,
             rotation: splat.rotation,
             scale: splat.scale,
-            color: splat.color,
-            sh: splat.sh,
+            color: splat.sh_0,
+            sh: splat.sh_n,
         }
     }
 }

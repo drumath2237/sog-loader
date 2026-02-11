@@ -295,7 +295,7 @@ fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<f32>> {
     Ok(scales)
 }
 
-fn decode_color(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
+fn decode_sh_0(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
     // const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
 
     let Sh0 { codebook, sh0 } = sh0;
@@ -418,8 +418,8 @@ pub fn decode(sog_data: &SogDataV2) -> Result<Splat> {
         position: decode_positions(means, count)?,
         rotation: decode_rotations(quats, count)?,
         scale: decode_scales(scales, count)?,
-        color: decode_color(sh0, count)?,
-        sh: if let Some(s) = sh_n {
+        sh_0: decode_sh_0(sh0, count)?,
+        sh_n: if let Some(s) = sh_n {
             Some(decode_sh_n(s, count)?)
         } else {
             None

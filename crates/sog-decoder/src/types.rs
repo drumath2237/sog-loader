@@ -97,6 +97,6 @@ pub struct Splat {
     pub position: Vec<f32>,
     pub rotation: Vec<f32>,
     pub scale: Vec<f32>,
-    pub color: Vec<f32>,
-    pub sh: Option<Vec<f32>>,
+    pub sh_0: Vec<f32>,
+    pub sh_n: Option<Vec<f32>>,
 }
