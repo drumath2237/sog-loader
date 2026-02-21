@@ -1,7 +1,7 @@
 import "./style.css";
-import { a, b } from "../lib/main";
 
 import sog_path from "../../../crates/sample_data/pizza.sog?url";
+import { a, b } from "../lib/main";
 
 async function main() {
   const sog_file = await fetch(sog_path).then((res) => res.arrayBuffer());
