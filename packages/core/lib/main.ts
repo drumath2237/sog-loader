@@ -1,4 +1,4 @@
-import { decode, SogDataV2, unpack } from "./wasm/sog_decoder_wasm";
+import { decode, type SogDataV2, unpack } from "./wasm/sog_decoder_wasm";
 
 export function a(file: Uint8Array) {
   return unpack(file);
