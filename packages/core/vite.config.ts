@@ -1,15 +1,17 @@
+import dts from "unplugin-dts/vite";
 import { defineConfig } from "vite";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
+import { resolve } from "node:path";
 
 export default defineConfig({
-  plugins: [wasm(), topLevelAwait()],
+  plugins: [wasm(), topLevelAwait(), dts({ tsconfigPath: "./tsconfig.json" })],
   build: {
     lib: {
-      entry: "./lib/main.ts",
-      name: "Counter",
-      fileName: "counter",
-      formats: ["es", "system"],
+      entry: resolve(__dirname, "lib/index.ts"),
+      name: "@sog-loader/core",
+      fileName: "index",
+      formats: ["es"],
     },
   },
 });
