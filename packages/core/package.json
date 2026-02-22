@@ -1,6 +1,6 @@
 {
   "name": "@sog-loader/core",
-  "private": true,
+  "private": false,
   "version": "0.0.0",
   "description": ".sog Gaussian Splatting file loader package.",
   "author": {

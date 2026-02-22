@@ -7,6 +7,7 @@ import wasm from "vite-plugin-wasm";
 export default defineConfig({
   plugins: [wasm(), topLevelAwait(), dts({ tsconfigPath: "./tsconfig.json" })],
   build: {
+    sourcemap: true,
     lib: {
       entry: resolve(__dirname, "lib/index.ts"),
       name: "@sog-loader/core",
