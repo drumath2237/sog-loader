@@ -1,10 +1,14 @@
-name: Lint and Format
+name: TypeScriptLint & Format
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
+    paths:
+      - "packages/**"
+      - ".github/workflows/**"
+      - "packages.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "biome.json"
 
 jobs:
   core:
