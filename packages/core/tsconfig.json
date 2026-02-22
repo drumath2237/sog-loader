@@ -19,7 +19,8 @@
     "noUncheckedSideEffectImports": true,
     "emitDeclarationOnly": true,
     "declaration": true,
-    "declarationDir": "./dist"
+    "declarationDir": "./dist",
+    "sourceMap": true
   },
   "include": ["lib"]
 }
