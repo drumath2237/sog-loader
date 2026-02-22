@@ -1,8 +1,8 @@
+import { resolve } from "node:path";
 import dts from "unplugin-dts/vite";
 import { defineConfig } from "vite";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
-import { resolve } from "node:path";
 
 export default defineConfig({
   plugins: [wasm(), topLevelAwait(), dts({ tsconfigPath: "./tsconfig.json" })],
