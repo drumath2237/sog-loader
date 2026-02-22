@@ -2,10 +2,33 @@
   "name": "@sog-loader/core",
   "private": true,
   "version": "0.0.0",
+  "description": ".sog Gaussian Splatting file loader package.",
+  "author": {
+    "name": "drumath2237",
+    "url": "https://github.com/drumath2237"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/drumath2237/sog-loader",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/drumath2237/sog-loader/issues"
+  },
+  "homepage": "https://github.com/drumath2237/sog-loader",
   "license": "Apache-2.0",
   "type": "module",
   "files": [
     "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "keywords": [
+    "sog",
+    "3d gaussian splatting",
+    "decoder"
   ],
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
