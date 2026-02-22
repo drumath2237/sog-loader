@@ -2,7 +2,7 @@ use sog_decoder::types::{Codebook, Means, Quats, Scales, Sh0, ShN, SogDataV2, Sp
 use wasm_bindgen::JsError;
 use wasm_bindgen::prelude::wasm_bindgen;
 
-#[wasm_bindgen(js_name = "Splat", getter_with_clone)]
+#[wasm_bindgen(js_name = "RawSplat", getter_with_clone)]
 #[derive(Debug, Clone)]
 pub struct JsSplat {
     pub count: usize,
@@ -32,7 +32,7 @@ impl From<Splat> for JsSplat {
     }
 }
 
-#[wasm_bindgen(js_name = "Vector3", getter_with_clone)]
+#[wasm_bindgen(js_name = "RawVector3", getter_with_clone)]
 #[derive(Debug, Clone, Copy, Default)]
 pub struct JsVector3 {
     pub x: f32,
@@ -60,7 +60,7 @@ impl From<JsVector3> for Vector3 {
     }
 }
 
-#[wasm_bindgen(js_name = "Codebook", getter_with_clone)]
+#[wasm_bindgen(js_name = "RawCodebook", getter_with_clone)]
 #[derive(Debug, Clone)]
 pub struct JsCodebook(pub Vec<f32>);
 
@@ -87,7 +87,7 @@ impl TryFrom<JsCodebook> for Codebook {
     }
 }
 
-#[wasm_bindgen(js_name = "Means", getter_with_clone)]
+#[wasm_bindgen(js_name = "RawMeans", getter_with_clone)]
 #[derive(Debug, Clone)]
 pub struct JsMeans {
     pub mins: JsVector3,
@@ -120,7 +120,7 @@ impl From<JsMeans> for Means {
     }
 }
 
-#[wasm_bindgen(js_name = "Quats", getter_with_clone)]
+#[wasm_bindgen(js_name = "RawQuats", getter_with_clone)]
 #[derive(Debug, Clone)]
 pub struct JsQuats(pub Vec<u8>);
 
@@ -136,7 +136,7 @@ impl From<JsQuats> for Quats {
     }
 }
 
-#[wasm_bindgen(js_name = "Scales", getter_with_clone)]
+#[wasm_bindgen(js_name = "RawScales", getter_with_clone)]
 #[derive(Debug, Clone)]
 pub struct JsScales {
     pub codebook: JsCodebook,
@@ -163,7 +163,7 @@ impl TryFrom<JsScales> for Scales {
     }
 }
 
-#[wasm_bindgen(js_name = "Sh0", getter_with_clone)]
+#[wasm_bindgen(js_name = "RawSh0", getter_with_clone)]
 #[derive(Debug, Clone)]
 pub struct JsSh0 {
     pub codebook: JsCodebook,
@@ -190,7 +190,7 @@ impl TryFrom<JsSh0> for Sh0 {
     }
 }
 
-#[wasm_bindgen(js_name = "ShN", getter_with_clone)]
+#[wasm_bindgen(js_name = "RawShN", getter_with_clone)]
 #[derive(Debug, Clone)]
 pub struct JsShN {
     pub count: i32,
@@ -226,7 +226,7 @@ impl TryFrom<JsShN> for ShN {
     }
 }
 
-#[wasm_bindgen(js_name = "SogDataV2", getter_with_clone)]
+#[wasm_bindgen(js_name = "RawSogDataV2", getter_with_clone)]
 #[derive(Debug, Clone)]
 pub struct JsSogDataV2 {
     pub count: u32,
