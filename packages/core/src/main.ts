@@ -1,18 +1,21 @@
 import "./style.css";
 
 import sog_path from "../../../crates/sample_data/pizza.sog?url";
-import { a, b } from "../lib/main";
+import { decodeRaw, unpackRaw } from "../lib/main";
 
 async function main() {
   const sog_file = await fetch(sog_path).then((res) => res.arrayBuffer());
 
   console.log("start");
 
-  const sog = a(new Uint8Array(sog_file));
-  using splat = b(sog);
-  console.log(splat);
+  const sogRaw = unpackRaw(new Uint8Array(sog_file));
+  using splatRaw = decodeRaw(sogRaw);
+  console.log(splatRaw);
 
   console.log("done");
+
+  const splat = splatRaw.clone();
+  console.log(splat);
 }
 
 main();
