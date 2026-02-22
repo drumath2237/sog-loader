@@ -39,7 +39,7 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
     let means_l_name = meta_json
         .means
         .files
-        .get(0)
+        .first()
         .ok_or(ParseError::InvalidMetaJson(
             "missing means_l file name".to_string(),
         ))?;
@@ -66,7 +66,7 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
     let scales_name = meta_json
         .scales
         .files
-        .get(0)
+        .first()
         .ok_or(ParseError::InvalidMetaJson(
             "missing scales file name".to_string(),
         ))?;
@@ -81,7 +81,7 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
     let quats_name = meta_json
         .quats
         .files
-        .get(0)
+        .first()
         .ok_or(ParseError::InvalidMetaJson(
             "missing quats file name".to_string(),
         ))?;
@@ -95,7 +95,7 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
     let sh0_name = meta_json
         .sh0
         .files
-        .get(0)
+        .first()
         .ok_or(ParseError::InvalidMetaJson(
             "missing sh0 file name".to_string(),
         ))?;
@@ -108,7 +108,7 @@ fn parse_sog(files: HashMap<String, Vec<u8>>) -> ParseResult<SogDataV2> {
     };
 
     let sh_n = if let Some(sh_n) = meta_json.sh_n {
-        let centroids_name = sh_n.files.get(0).ok_or(ParseError::InvalidMetaJson(
+        let centroids_name = sh_n.files.first().ok_or(ParseError::InvalidMetaJson(
             "missing centroids file name".to_string(),
         ))?;
         let labels_name = sh_n.files.get(1).ok_or(ParseError::InvalidMetaJson(
@@ -148,6 +148,7 @@ pub fn unpack(file: &[u8]) -> Result<SogDataV2> {
     Ok(sog_data)
 }
 
+#[allow(clippy::identity_op)]
 fn decode_positions(means: &Means, count: usize) -> DecodeResult<Vec<f32>> {
     let Means {
         mins,
@@ -211,6 +212,7 @@ fn decode_positions(means: &Means, count: usize) -> DecodeResult<Vec<f32>> {
 }
 
 /// return: f32(x,y,z,w)
+#[allow(clippy::identity_op)]
 fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<f32>> {
     let cursor = Cursor::new(&quats.0);
     let mut decoder = WebPDecoder::new(cursor)?;
@@ -267,6 +269,7 @@ fn decode_rotations(quats: &Quats, count: usize) -> DecodeResult<Vec<f32>> {
     Ok(rotations)
 }
 
+#[allow(clippy::identity_op)]
 fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<f32>> {
     let Scales { codebook, scales } = scales;
 
@@ -295,6 +298,7 @@ fn decode_scales(scales: &Scales, count: usize) -> DecodeResult<Vec<f32>> {
     Ok(scales)
 }
 
+#[allow(clippy::identity_op)]
 fn decode_sh_0(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
     // const SH_C0: f32 = 0.28209479177387814; // SH_C0 = Y_0^0 = 1 / (2 * sqrt(pi))
 
@@ -338,6 +342,7 @@ fn decode_sh_0(sh0: &Sh0, count: usize) -> DecodeResult<Vec<f32>> {
     Ok(colors)
 }
 
+#[allow(clippy::identity_op)]
 fn decode_sh_n(sh_n: &ShN, count: usize) -> DecodeResult<Vec<f32>> {
     let ShN {
         bands,
