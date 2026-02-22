@@ -19,7 +19,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "wasm:clear": "node ../../scripts/wasm_clear.js",
+    "wasm:clear": "node ../../scripts/wasm_clear.mjs",
     "wasm:build": "pnpm wasm:clear && wasm-bindgen ../../target/wasm32-unknown-unknown/debug/sog_decoder_wasm.wasm --out-dir ./lib/wasm/ --target bundler",
     "check": "biome check",
     "check:write": "biome check --write"
