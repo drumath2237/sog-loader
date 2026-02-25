@@ -48,8 +48,8 @@
     "@biomejs/biome": "^2.4.4",
     "@types/node": "^25.3.0",
     "typescript": "~5.9.3",
-    "unplugin-dts": "1.0.0-beta.6",
-    "vite": "^7.2.7",
+    "unplugin-dts": "catalog:",
+    "vite": "catalog:",
     "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.5.0"
   }

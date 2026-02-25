@@ -29,8 +29,8 @@
     "@types/node": "^25.3.0",
     "pkg-types": "^2.3.0",
     "typescript": "^5.5.4",
-    "vite": "^7.3.1",
-    "vite-plugin-dts": "^4.0.2"
+    "vite": "catalog:",
+    "unplugin-dts": "catalog:"
   },
   "dependencies": {
     "@babylonjs/core": "^8.52.0"
