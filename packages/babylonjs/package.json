@@ -26,7 +26,7 @@
     "prepare": "pnpm build",
     "check": "biome check",
     "check:write": "biome check --write",
-    "check:ci": "biome ci ."
+    "check:ci": "biome ci . --error-on-warnings"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
