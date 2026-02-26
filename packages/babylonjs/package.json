@@ -1,5 +1,5 @@
 {
-  "name": "babylonjs",
+  "name": "@sog-loader/babylonjs",
   "private": false,
   "version": "0.1.0",
   "description": "babylon.js library template",

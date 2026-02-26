@@ -26,7 +26,7 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: resolve(__dirname, "./lib/index.ts"),
-      name: "package",
+      name: "@sog-loader/babylonjs",
       fileName: "index",
       formats: ["es", "umd"],
     },
