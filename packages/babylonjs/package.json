@@ -25,7 +25,8 @@
     "build": "tsc && vite build",
     "prepare": "pnpm build",
     "check": "biome check",
-    "check:write": "biome check --write"
+    "check:write": "biome check --write",
+    "check:ci": "biome ci ."
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
