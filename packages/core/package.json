@@ -45,7 +45,7 @@
     "check:write": "biome check --write"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.4",
+    "@biomejs/biome": "catalog:",
     "@types/node": "^25.3.0",
     "typescript": "~5.9.3",
     "unplugin-dts": "catalog:",
