@@ -11,9 +11,12 @@ on:
       - "biome.json"
 
 jobs:
-  core:
-    name: Check sog-loader/core
+  check:
+    name: Biome Check
     runs-on: ubuntu-slim
+    strategy:
+      matrix:
+        package_name: [core, babylonjs]
 
     steps:
       - name: Checkout repository
@@ -34,4 +37,4 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run Biome check
-        run: pnpm run --filter @sog-loader/core check
+        run: pnpm run --filter @sog-loader/${{ matrix.package_name }} check:ci

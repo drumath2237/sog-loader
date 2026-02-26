@@ -1,0 +1,41 @@
+{
+  "name": "@sog-loader/babylonjs",
+  "private": false,
+  "version": "0.1.0",
+  "description": "babylon.js library template",
+  "author": "your name",
+  "license": "Apache-2.0",
+  "keywords": [
+    "npm"
+  ],
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js",
+    "require": "./dist/index.umd.cjs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "prepare": "pnpm build",
+    "check": "biome check",
+    "check:write": "biome check --write",
+    "check:ci": "biome ci . --error-on-warnings"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@types/node": "^25.3.0",
+    "typescript": "^5.5.4",
+    "unplugin-dts": "catalog:",
+    "vite": "catalog:"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^8.52.0"
+  }
+}

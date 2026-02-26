@@ -42,14 +42,15 @@
     "wasm:clear": "node ../../scripts/wasm_clear.mjs",
     "wasm:build": "pnpm wasm:clear && wasm-bindgen ../../target/wasm32-unknown-unknown/debug/sog_decoder_wasm.wasm --out-dir ./lib/wasm/ --target bundler",
     "check": "biome check",
-    "check:write": "biome check --write"
+    "check:write": "biome check --write",
+    "check:ci": "biome ci . --error-on-warnings"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.4",
+    "@biomejs/biome": "catalog:",
     "@types/node": "^25.3.0",
     "typescript": "~5.9.3",
-    "unplugin-dts": "1.0.0-beta.6",
-    "vite": "^7.2.7",
+    "unplugin-dts": "catalog:",
+    "vite": "catalog:",
     "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.5.0"
   }
