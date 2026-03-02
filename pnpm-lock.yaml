@@ -29,6 +29,9 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.4
+      '@sog-loader/core':
+        specifier: workspace:*
+        version: link:../core
       '@types/node':
         specifier: ^25.3.0
         version: 25.3.0

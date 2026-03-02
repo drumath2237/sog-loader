@@ -33,7 +33,8 @@
     "@types/node": "^25.3.0",
     "typescript": "^5.5.4",
     "unplugin-dts": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "@sog-loader/core": "workspace:*"
   },
   "dependencies": {
     "@babylonjs/core": "^8.52.0"
