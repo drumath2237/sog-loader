@@ -1,6 +1,8 @@
 import "./style.css";
-import { Engine, MeshBuilder, Scene, Vector3 } from "@babylonjs/core";
-import { createSphere } from "../lib";
+import { Engine, Scene } from "@babylonjs/core";
+import { createGsFromSogFile } from "../lib";
+
+import sog_path from "../../../crates/sample_data/pizza.sog?url";
 
 const main = () => {
   const renderCanvas =
@@ -15,10 +17,9 @@ const main = () => {
   scene.createDefaultCameraOrLight(true, true, true);
   scene.createDefaultEnvironment();
 
-  const box = MeshBuilder.CreateBox("box", { size: 0.5 });
-  box.position = new Vector3(0, 0.25, 0);
-
-  createSphere(0.5, new Vector3(0.5, 0.25, 0));
+  fetch(sog_path)
+    .then((res) => res.arrayBuffer())
+    .then((sogfile) => createGsFromSogFile(sogfile, scene));
 
   window.addEventListener("resize", () => engine.resize());
   engine.runRenderLoop(() => scene.render());
