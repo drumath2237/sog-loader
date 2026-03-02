@@ -1,8 +1,8 @@
 import {
   GaussianSplattingMesh,
   MeshBuilder,
-  Vector3,
   type Scene,
+  Vector3,
 } from "@babylonjs/core";
 import { decode, type RawSplat, type Splat, unpackRaw } from "@sog-loader/core";
 

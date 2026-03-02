@@ -1,8 +1,7 @@
 import "./style.css";
 import { Engine, Scene } from "@babylonjs/core";
-import { createGsFromSogFile } from "../lib";
-
 import sog_path from "../../../crates/sample_data/pizza.sog?url";
+import { createGsFromSogFile } from "../lib";
 
 const main = () => {
   const renderCanvas =
