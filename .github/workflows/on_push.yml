@@ -21,7 +21,7 @@ jobs:
         run: rustup target add wasm32-unknown-unknown
 
       - name: Install wasm-bindgen
-        run: cargo install wasm-bindgen-cli
+        run: cargo install -f wasm-bindgen-cli --version 0.2.111
 
       # - name: Install sccache
       #   uses: mozilla-actions/sccache-action@v0.0.9
