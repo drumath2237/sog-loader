@@ -14,7 +14,7 @@ const main = () => {
   const scene = new Scene(engine);
 
   scene.createDefaultCameraOrLight(true, true, true);
-  scene.createDefaultEnvironment();
+  // scene.createDefaultEnvironment();
 
   fetch(sog_path)
     .then((res) => res.arrayBuffer())

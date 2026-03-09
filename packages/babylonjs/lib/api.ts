@@ -5,6 +5,7 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { decode, type RawSplat, type Splat, unpackRaw } from "@sog-loader/core";
+import { log } from "console";
 
 export const createSphere = (size: number, position: Vector3) => {
   const sphere = MeshBuilder.CreateSphere("sphere", { diameter: size });
@@ -53,6 +54,7 @@ export async function createGsFromSogFile(
   const splat = decode(sogData);
   const binarySplat = _convertSplatToSPlatBinary(splat);
   const sh = _createShTextureBuffers(splat, scene);
+  console.log(sh);
   const gsMesh = new GaussianSplattingMesh("splat", undefined, scene, true);
   await gsMesh.updateDataAsync(binarySplat, sh ?? undefined);
   gsMesh.scaling = new Vector3(1, -1, 1);
@@ -100,14 +102,12 @@ function _createShTextureBuffers(
     for (let j = 0; j < componentsCount; j++) {
       const buffer = shTextureBuffers[Math.floor(j / (4 * 4))];
       const componentIndexInTexture = j % (4 * 4);
-      const shValue = shN[i * componentsCount + j] * 127.5 + 127.5;
-      buffer[componentOffset + componentIndexInTexture] = Math.max(
-        Math.min(0, shValue),
+      const index = (j % 3) * coeffCount + Math.floor(j / 3);
+      const shValue = shN[i * componentsCount + index] * 127.5 + 127.5;
+      buffer[componentOffset + componentIndexInTexture] = Math.min(
+        Math.max(0, shValue),
         255,
       );
-
-      // buffer[componentOffset + componentIndexInTexture] =
-      //   shN[i * componentsCount + j] * 127.5 + 127.5;
     }
   }
 
