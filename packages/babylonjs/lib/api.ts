@@ -58,6 +58,31 @@ export async function createGsFromSogFile(
   return gsMesh;
 }
 
-function _createShTextureBuffers(shN: Float32Array): Array<Uint8Array> {
+function _createShTextureBuffers(
+  {
+    count,
+    shN,
+    sh_degree,
+  }: { shN: Float32Array; count: number; sh_degree: number } | Splat | RawSplat,
+  scene: Scene,
+): Array<Uint8Array> | null {
+  let coeffCount = 0;
+  switch (sh_degree) {
+    case 0:
+      return null;
+    case 1:
+      coeffCount = 3;
+      break;
+    case 2:
+      coeffCount = 8;
+      break;
+    case 3:
+      coeffCount = 15;
+      break;
+    default:
+      return null;
+  }
+  const componentsCount = coeffCount * 3;
+
   throw new Error("not yet implemented");
 }
