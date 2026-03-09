@@ -83,6 +83,14 @@ function _createShTextureBuffers(
       return null;
   }
   const componentsCount = coeffCount * 3;
+  const textureCount = Math.ceil(componentsCount / 16); // 4 components can be stored per texture, 4 sh per component
+
+  const textureWidth = scene.getEngine().getCaps().maxTextureSize;
+  const textureHeight = Math.ceil(count / textureWidth);
+
+  const shTextureBuffers = Array(textureCount)
+    .fill(new Uint8Array())
+    .map(() => new Uint8Array(textureWidth * textureHeight * 4 * 4));
 
   throw new Error("not yet implemented");
 }
