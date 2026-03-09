@@ -57,3 +57,7 @@ export async function createGsFromSogFile(
   gsMesh.scaling = new Vector3(1, -1, 1);
   return gsMesh;
 }
+
+function _createShTextureBuffers(shN: Float32Array): Array<Uint8Array> {
+  throw new Error("not yet implemented");
+}
