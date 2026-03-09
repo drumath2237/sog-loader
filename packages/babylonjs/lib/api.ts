@@ -1,7 +1,7 @@
 import {
   GaussianSplattingMesh,
   MeshBuilder,
-  type Scene,
+  Scene,
   Vector3,
 } from "@babylonjs/core";
 import { decode, type RawSplat, type Splat, unpackRaw } from "@sog-loader/core";
@@ -49,23 +49,28 @@ export async function createGsFromSogFile(
   sogFile: ArrayBuffer,
   scene: Scene,
 ): Promise<GaussianSplattingMesh> {
-  using sogData = unpackRaw(new Uint8Array(sogFile));
+  const sogData = unpackRaw(new Uint8Array(sogFile));
   const splat = decode(sogData);
   const binarySplat = _convertSplatToSPlatBinary(splat);
+  const sh = _createShTextureBuffers(splat, scene);
   const gsMesh = new GaussianSplattingMesh("splat", undefined, scene, true);
-  await gsMesh.updateDataAsync(binarySplat);
+  await gsMesh.updateDataAsync(binarySplat, sh ?? undefined);
   gsMesh.scaling = new Vector3(1, -1, 1);
   return gsMesh;
 }
 
 function _createShTextureBuffers(
   {
-    count,
+    count: splatCount,
     shN,
     sh_degree,
   }: { shN: Float32Array; count: number; sh_degree: number } | Splat | RawSplat,
   scene: Scene,
 ): Array<Uint8Array> | null {
+  if (!shN) {
+    return null;
+  }
+
   let coeffCount = 0;
   switch (sh_degree) {
     case 0:
@@ -83,14 +88,28 @@ function _createShTextureBuffers(
       return null;
   }
   const componentsCount = coeffCount * 3;
-  const textureCount = Math.ceil(componentsCount / 16); // 4 components can be stored per texture, 4 sh per component
-
+  const textureCount = Math.ceil(componentsCount / (4 * 4)); // 4 components can be stored per texture, 4 sh per component
   const textureWidth = scene.getEngine().getCaps().maxTextureSize;
-  const textureHeight = Math.ceil(count / textureWidth);
-
+  const textureHeight = Math.ceil(splatCount / textureWidth);
   const shTextureBuffers = Array(textureCount)
     .fill(new Uint8Array())
     .map(() => new Uint8Array(textureWidth * textureHeight * 4 * 4));
 
-  throw new Error("not yet implemented");
+  for (let i = 0; i < splatCount; i++) {
+    const componentOffset = 4 * 4 * i;
+    for (let j = 0; j < componentsCount; j++) {
+      const buffer = shTextureBuffers[Math.floor(j / (4 * 4))];
+      const componentIndexInTexture = j % (4 * 4);
+      const shValue = shN[i * componentsCount + j] * 127.5 + 127.5;
+      buffer[componentOffset + componentIndexInTexture] = Math.max(
+        Math.min(0, shValue),
+        255,
+      );
+
+      // buffer[componentOffset + componentIndexInTexture] =
+      //   shN[i * componentsCount + j] * 127.5 + 127.5;
+    }
+  }
+
+  return shTextureBuffers;
 }
