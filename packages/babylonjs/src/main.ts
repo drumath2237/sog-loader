@@ -1,9 +1,9 @@
 import "./style.css";
 import {
   Engine,
-  Scene,
+  type GaussianSplattingMesh,
   ImportMeshAsync,
-  GaussianSplattingMesh,
+  Scene,
   Vector3,
 } from "@babylonjs/core";
 import sog_path from "../../../crates/sample_data/pizza.sog?url";
