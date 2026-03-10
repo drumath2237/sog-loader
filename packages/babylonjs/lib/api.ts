@@ -49,11 +49,66 @@ export async function createGsFromSogFile(
   sogFile: ArrayBuffer,
   scene: Scene,
 ): Promise<GaussianSplattingMesh> {
-  using sogData = unpackRaw(new Uint8Array(sogFile));
+  const sogData = unpackRaw(new Uint8Array(sogFile));
   const splat = decode(sogData);
   const binarySplat = _convertSplatToSPlatBinary(splat);
+  const sh = _createShTextureBuffers(splat, scene);
   const gsMesh = new GaussianSplattingMesh("splat", undefined, scene, true);
-  await gsMesh.updateDataAsync(binarySplat);
+  await gsMesh.updateDataAsync(binarySplat, sh ?? undefined);
   gsMesh.scaling = new Vector3(1, -1, 1);
   return gsMesh;
+}
+
+function _createShTextureBuffers(
+  {
+    count: splatCount,
+    shN,
+    sh_degree,
+  }: { shN: Float32Array; count: number; sh_degree: number } | Splat | RawSplat,
+  scene: Scene,
+): Array<Uint8Array> | null {
+  if (!shN) {
+    return null;
+  }
+
+  let coeffCount = 0;
+  switch (sh_degree) {
+    case 0:
+      return null;
+    case 1:
+      coeffCount = 3;
+      break;
+    case 2:
+      coeffCount = 8;
+      break;
+    case 3:
+      coeffCount = 15;
+      break;
+    default:
+      return null;
+  }
+  const componentsCount = coeffCount * 3;
+  const textureCount = Math.ceil(componentsCount / (4 * 4)); // 4 components can be stored per texture, 4 sh per component
+  const textureWidth = scene.getEngine().getCaps().maxTextureSize;
+  const textureHeight = Math.ceil(splatCount / textureWidth);
+  const shTextureBuffers = Array.from(
+    { length: textureCount },
+    () => new Uint8Array(textureWidth * textureHeight * 4 * 4),
+  );
+
+  for (let i = 0; i < splatCount; i++) {
+    const componentOffset = 4 * 4 * i;
+    for (let j = 0; j < componentsCount; j++) {
+      const buffer = shTextureBuffers[Math.floor(j / (4 * 4))];
+      const componentIndexInTexture = j % (4 * 4);
+      const index = (j % 3) * coeffCount + Math.floor(j / 3);
+      const shValue = shN[i * componentsCount + index] * 127.5 + 127.5;
+      buffer[componentOffset + componentIndexInTexture] = Math.min(
+        Math.max(0, shValue),
+        255,
+      );
+    }
+  }
+
+  return shTextureBuffers;
 }
