@@ -1,9 +1,16 @@
 import "./style.css";
-import { Engine, Scene } from "@babylonjs/core";
+import {
+  Engine,
+  Scene,
+  ImportMeshAsync,
+  GaussianSplattingMesh,
+  Vector3,
+} from "@babylonjs/core";
 import sog_path from "../../../crates/sample_data/pizza.sog?url";
 import { createGsFromSogFile } from "../lib";
+import "@babylonjs/loaders/SPLAT";
 
-const main = () => {
+async function main() {
   const renderCanvas =
     document.querySelector<HTMLCanvasElement>("#renderCanvas");
   if (!renderCanvas) {
@@ -14,14 +21,29 @@ const main = () => {
   const scene = new Scene(engine);
 
   scene.createDefaultCameraOrLight(true, true, true);
-  // scene.createDefaultEnvironment();
-
-  fetch(sog_path)
-    .then((res) => res.arrayBuffer())
-    .then((sogfile) => createGsFromSogFile(sogfile, scene));
 
   window.addEventListener("resize", () => engine.resize());
   engine.runRenderLoop(() => scene.render());
-};
+
+  console.log("====================");
+
+  new Promise(async () => {
+    console.time("sog-loader");
+    const gs1 = await fetch(sog_path)
+      .then((res) => res.arrayBuffer())
+      .then((sogfile) => createGsFromSogFile(sogfile, scene));
+    console.timeEnd("sog-loader");
+    gs1.position = new Vector3(0.22, 0, 0);
+  });
+
+  new Promise(async () => {
+    console.time("babylonjs");
+    const gs2 = await ImportMeshAsync(sog_path, scene).then(
+      (res) => res.meshes[0] as GaussianSplattingMesh,
+    );
+    console.timeEnd("babylonjs");
+    gs2.position = new Vector3(-0.22, 0, 0);
+  });
+}
 
 main();
