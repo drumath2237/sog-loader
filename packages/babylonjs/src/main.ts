@@ -27,23 +27,25 @@ async function main() {
 
   console.log("====================");
 
-  new Promise(async () => {
+  const task1 = async () => {
     console.time("sog-loader");
     const gs1 = await fetch(sog_path)
       .then((res) => res.arrayBuffer())
       .then((sogfile) => createGsFromSogFile(sogfile, scene));
     console.timeEnd("sog-loader");
     gs1.position = new Vector3(0.22, 0, 0);
-  });
+  };
 
-  new Promise(async () => {
+  const task2 = async () => {
     console.time("babylonjs");
     const gs2 = await ImportMeshAsync(sog_path, scene).then(
       (res) => res.meshes[0] as GaussianSplattingMesh,
     );
     console.timeEnd("babylonjs");
     gs2.position = new Vector3(-0.22, 0, 0);
-  });
+  };
+
+  await Promise.all([task1(), task2()]);
 }
 
 main();
