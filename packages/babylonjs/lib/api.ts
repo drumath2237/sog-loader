@@ -91,9 +91,10 @@ function _createShTextureBuffers(
   const textureCount = Math.ceil(componentsCount / (4 * 4)); // 4 components can be stored per texture, 4 sh per component
   const textureWidth = scene.getEngine().getCaps().maxTextureSize;
   const textureHeight = Math.ceil(splatCount / textureWidth);
-  const shTextureBuffers = Array(textureCount)
-    .fill(new Uint8Array())
-    .map(() => new Uint8Array(textureWidth * textureHeight * 4 * 4));
+  const shTextureBuffers = Array.from(
+    { length: textureCount },
+    () => new Uint8Array(textureWidth * textureHeight * 4 * 4),
+  );
 
   for (let i = 0; i < splatCount; i++) {
     const componentOffset = 4 * 4 * i;
