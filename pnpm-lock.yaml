@@ -23,11 +23,11 @@ importers:
   packages/babylonjs:
     dependencies:
       '@babylonjs/core':
-        specifier: ^8.52.0
-        version: 8.52.0
+        specifier: ^8.54.1
+        version: 8.54.2
       '@babylonjs/loaders':
         specifier: ^8.54.1
-        version: 8.54.1(@babylonjs/core@8.52.0)(babylonjs-gltf2interface@8.54.1)
+        version: 8.54.1(@babylonjs/core@8.54.2)(babylonjs-gltf2interface@8.54.1)
     devDependencies:
       '@biomejs/biome':
         specifier: 'catalog:'
@@ -74,8 +74,8 @@ importers:
 
 packages:
 
-  '@babylonjs/core@8.52.0':
-    resolution: {integrity: sha512-4W6I20Q+8llgWFX8TElJNUo6mKMZWanB/KR5HVIyGyveMikc8BXzIg+mExvJ+0PNUqHM07FcZfNMQSa5MZ/SuA==}
+  '@babylonjs/core@8.54.2':
+    resolution: {integrity: sha512-9mEGUIqG4qvG0uYfdtjwBWGPmHvOPjIKEkFmH8+ro6e0VWrbvDn3VgRX+zTv1oQRe8L/N0RI5plOZjpolN3XdA==}
 
   '@babylonjs/loaders@8.54.1':
     resolution: {integrity: sha512-WJF1ZkiWHP7xFQI4K/Cs5Aoi776mJBVNGScbQFT9EveyI+PY/q8a0m976GAkSQ3PuvpW3GEdYZY1YFdXsP8gxg==}
@@ -956,11 +956,11 @@ packages:
 
 snapshots:
 
-  '@babylonjs/core@8.52.0': {}
+  '@babylonjs/core@8.54.2': {}
 
-  '@babylonjs/loaders@8.54.1(@babylonjs/core@8.52.0)(babylonjs-gltf2interface@8.54.1)':
+  '@babylonjs/loaders@8.54.1(@babylonjs/core@8.54.2)(babylonjs-gltf2interface@8.54.1)':
     dependencies:
-      '@babylonjs/core': 8.52.0
+      '@babylonjs/core': 8.54.2
       babylonjs-gltf2interface: 8.54.1
 
   '@biomejs/biome@2.4.4':
