@@ -29,13 +29,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@sog-loader/core": "workspace:*",
     "@types/node": "^25.3.0",
     "typescript": "^5.5.4",
     "unplugin-dts": "catalog:",
-    "vite": "catalog:",
-    "@sog-loader/core": "workspace:*"
+    "vite": "catalog:"
   },
   "dependencies": {
-    "@babylonjs/core": "^8.52.0"
+    "@babylonjs/core": "^8.54.1",
+    "@babylonjs/loaders": "^8.54.1"
   }
 }
