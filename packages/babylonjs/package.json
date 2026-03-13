@@ -34,7 +34,6 @@
     "vite": "catalog:"
   },
   "dependencies": {
-    "@babylonjs/core": "^8.54.1",
-    "@babylonjs/loaders": "^8.54.1"
+    "@babylonjs/core": "^8.54.1"
   }
 }
