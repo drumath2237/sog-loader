@@ -1,12 +1,28 @@
 {
   "name": "@sog-loader/babylonjs",
   "private": false,
-  "version": "0.1.0",
-  "description": "babylon.js library template",
-  "author": "your name",
+  "version": "0.0.0",
+  "description": ".sog Gaussian Splatting file loader for Babylon.js",
+  "author": {
+    "name": "drumath2237",
+    "url": "https://github.com/drumath2237"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/drumath2237/sog-loader",
+    "directory": "packages/babylonjs"
+  },
+  "bugs": {
+    "url": "https://github.com/drumath2237/sog-loader/issues"
+  },
+  "homepage": "https://github.com/drumath2237/sog-loader",
   "license": "Apache-2.0",
   "keywords": [
-    "npm"
+    "sog",
+    "3d gaussian splatting",
+    "decoder",
+    "babylon.js",
+    "BabylonJS"
   ],
   "type": "module",
   "files": [
@@ -27,13 +43,15 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
-    "@sog-loader/core": "workspace:*",
     "@types/node": "^25.3.0",
     "typescript": "^5.5.4",
     "unplugin-dts": "catalog:",
     "vite": "catalog:"
   },
   "dependencies": {
+    "@sog-loader/core": "workspace:*"
+  },
+  "peerDependencies": {
     "@babylonjs/core": "^8.54.1"
   }
 }

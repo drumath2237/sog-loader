@@ -25,13 +25,13 @@ importers:
       '@babylonjs/core':
         specifier: ^8.54.1
         version: 8.54.2
+      '@sog-loader/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.4.4
-      '@sog-loader/core':
-        specifier: workspace:*
-        version: link:../core
       '@types/node':
         specifier: ^25.3.0
         version: 25.3.0

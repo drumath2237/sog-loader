@@ -1,1 +1,1 @@
-# Babylon.js Library
+# @sog-loader/babylonjs
