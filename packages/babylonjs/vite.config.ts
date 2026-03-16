@@ -23,7 +23,7 @@ export default defineConfig({
       entry: resolve(__dirname, "./lib/index.ts"),
       name: "@sog-loader/babylonjs",
       fileName: "index",
-      formats: ["es", "umd"],
+      formats: ["es"],
     },
   },
 });
