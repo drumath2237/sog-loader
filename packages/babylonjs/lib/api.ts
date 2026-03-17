@@ -1,21 +1,10 @@
-import {
-  GaussianSplattingMesh,
-  MeshBuilder,
-  type Scene,
-  Vector3,
-} from "@babylonjs/core";
+import { GaussianSplattingMesh, type Scene, Vector3 } from "@babylonjs/core";
 import {
   decodeRaw,
   type RawSplat,
   type Splat,
   unpackRaw,
 } from "@sog-loader/core";
-
-export const createSphere = (size: number, position: Vector3) => {
-  const sphere = MeshBuilder.CreateSphere("sphere", { diameter: size });
-  sphere.position = position;
-  return sphere;
-};
 
 export async function createGsFromSogFile(
   sogFile: ArrayBuffer,
