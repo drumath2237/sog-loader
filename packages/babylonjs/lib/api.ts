@@ -31,33 +31,38 @@ function _convertSplatToSPlatBinary(splat: Splat | RawSplat): ArrayBuffer {
   const rotation = splat.rotation;
   const sh0 = splat.sh0;
 
+  const f32View = new Float32Array(data);
+  const u8View = new Uint8ClampedArray(data);
+
   for (let i = 0; i < splatCount; i++) {
-    const posBuffer = new Float32Array(data, i * unitByteLength, 3);
-    posBuffer[0] = position[i * 3 + 0];
-    posBuffer[1] = position[i * 3 + 1];
-    posBuffer[2] = position[i * 3 + 2];
+    const splatOffset32 = i * (unitByteLength / 4); // 32 bytes per splat / 4 bytes per float
+    const splatOffset8 = i * unitByteLength; // 32 bytes per splat
 
-    const scaleBuffer = new Float32Array(data, i * unitByteLength + 12, 3);
-    scaleBuffer[0] = Math.exp(scale[i * 3 + 0]);
-    scaleBuffer[1] = Math.exp(scale[i * 3 + 1]);
-    scaleBuffer[2] = Math.exp(scale[i * 3 + 2]);
+    // Position
+    f32View[splatOffset32 + 0] = position[i * 3 + 0];
+    f32View[splatOffset32 + 1] = position[i * 3 + 1];
+    f32View[splatOffset32 + 2] = position[i * 3 + 2];
 
-    const colorBuffer = new Uint8ClampedArray(data, i * unitByteLength + 24, 4);
-    colorBuffer[0] = (SH_C0 * sh0[i * 4 + 0] + 0.5) * 255;
-    colorBuffer[1] = (SH_C0 * sh0[i * 4 + 1] + 0.5) * 255;
-    colorBuffer[2] = (SH_C0 * sh0[i * 4 + 2] + 0.5) * 255;
-    colorBuffer[3] = (1 / (1 + Math.exp(-sh0[i * 4 + 3]))) * 255;
+    // Scale
+    f32View[splatOffset32 + 3] = Math.exp(scale[i * 3 + 0]);
+    f32View[splatOffset32 + 4] = Math.exp(scale[i * 3 + 1]);
+    f32View[splatOffset32 + 5] = Math.exp(scale[i * 3 + 2]);
 
-    const rotBuffer = new Uint8ClampedArray(data, i * unitByteLength + 28, 4);
-    rotBuffer[0] = rotation[i * 4 + 0] * 127.5 + 127.5;
-    rotBuffer[1] = rotation[i * 4 + 1] * 127.5 + 127.5;
-    rotBuffer[2] = rotation[i * 4 + 2] * 127.5 + 127.5;
-    rotBuffer[3] = rotation[i * 4 + 3] * 127.5 + 127.5;
+    // Color
+    u8View[splatOffset8 + 24] = (SH_C0 * sh0[i * 4 + 0] + 0.5) * 255;
+    u8View[splatOffset8 + 25] = (SH_C0 * sh0[i * 4 + 1] + 0.5) * 255;
+    u8View[splatOffset8 + 26] = (SH_C0 * sh0[i * 4 + 2] + 0.5) * 255;
+    u8View[splatOffset8 + 27] = (1 / (1 + Math.exp(-sh0[i * 4 + 3]))) * 255;
+
+    // Rotation
+    u8View[splatOffset8 + 28] = rotation[i * 4 + 0] * 127.5 + 127.5;
+    u8View[splatOffset8 + 29] = rotation[i * 4 + 1] * 127.5 + 127.5;
+    u8View[splatOffset8 + 30] = rotation[i * 4 + 2] * 127.5 + 127.5;
+    u8View[splatOffset8 + 31] = rotation[i * 4 + 3] * 127.5 + 127.5;
   }
 
   return data;
 }
-
 function _createShTextureBuffers(
   splat:
     | { shN: Float32Array; count: number; sh_degree: number }
