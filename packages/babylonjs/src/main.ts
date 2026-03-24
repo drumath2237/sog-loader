@@ -1,6 +1,6 @@
 import "./style.css";
 import { Engine, Scene, Vector3 } from "@babylonjs/core";
-import sog_path from "../../../crates/sample_data/pizza.sog?url";
+import sog_path from "../../../crates/sample_data/hornedlizard.sog?url";
 import { createGsFromSogFile } from "../lib";
 
 async function main() {
@@ -26,7 +26,8 @@ async function main() {
       .then((res) => res.arrayBuffer())
       .then((sogfile) => createGsFromSogFile(sogfile, scene));
     console.timeEnd("sog-loader");
-    gs1.position = new Vector3(0.22, 0, 0);
+    // gs1.position = new Vector3(0.22, 0, 0);
+    gs1.scaling = new Vector3(-1, 1, 1);
   };
 
   await Promise.all([task1()]);
