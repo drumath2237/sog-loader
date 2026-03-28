@@ -2,6 +2,7 @@
 edition = "2024"
 name = "sog-decoder"
 version = "0.1.0"
+license = "Apache-2.0"
 
 [dependencies]
 zip = { version = "7.0.0", default-features = false, features = ["deflate"] }
