@@ -113,7 +113,7 @@ checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "playground"
-version = "0.1.0"
+version = "0.1.1-rc.1"
 dependencies = [
  "sog-decoder",
 ]
@@ -199,7 +199,7 @@ checksum = "e320a6c5ad31d271ad523dcf3ad13e2767ad8b1cb8f047f75a8aeaf8da139da2"
 
 [[package]]
 name = "sog-decoder"
-version = "0.1.0"
+version = "0.1.0-rc.1"
 dependencies = [
  "image-webp",
  "serde",
@@ -210,7 +210,7 @@ dependencies = [
 
 [[package]]
 name = "sog-decoder-wasm"
-version = "0.1.0"
+version = "0.1.0-rc.1"
 dependencies = [
  "sog-decoder",
  "wasm-bindgen",

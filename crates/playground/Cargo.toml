@@ -2,7 +2,7 @@
 edition = "2024"
 name = "playground"
 publish = false
-version = "0.1.0"
+version = "0.1.0-rc.1"
 
 [dependencies]
-sog-decoder = {path = "../sog-decoder"}
+sog-decoder = { path = "../sog-decoder" }

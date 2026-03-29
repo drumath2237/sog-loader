@@ -1,7 +1,15 @@
 [package]
 edition = "2024"
 name = "sog-decoder"
-version = "0.1.0"
+description = ".sog 3D Gaussian Splatting data decoder"
+authors = ["drumath2237"]
+keywords = ["sog", "gaussian-splatting", "3dgs"]
+categories = ["encoding"]
+version = "0.1.0-rc.1"
+license = "Apache-2.0"
+documentation = "https://docs.rs/sog-decoder"
+homepage = "https://github.com/drumath2237/sog-loader"
+repository = "https://github.com/drumath2237/sog-loader"
 
 [dependencies]
 zip = { version = "7.0.0", default-features = false, features = ["deflate"] }
