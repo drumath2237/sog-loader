@@ -11,5 +11,8 @@
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
-  "packageManager": "pnpm@10.15.1"
+  "packageManager": "pnpm@10.15.1",
+  "devDependencies": {
+    "@lerna-lite/version": "^4.11.5"
+  }
 }
