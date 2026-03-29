@@ -29,3 +29,5 @@ target
 node_modules/
 
 .zed/settings.json
+
+lerna-debug.log

@@ -1,13 +1,12 @@
 {
   "name": "sog-loader",
-  "version": "1.0.0",
   "description": "",
   "private": true,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:core": "pnpm --filter @sog-loader/core run build",
-    "version:bump": "pnpm exec @lerna-lite/version --dry-run"
+    "version:bump": "lerna version --dry-run"
   },
   "keywords": [],
   "author": "",
