@@ -20,7 +20,7 @@ cargo build --package sog-decoder --release
 ### Update and publish rust crates
 
 ```sh
-# bump the crats versions
+# bump the crates versions
 # TYPE: rc | minor | major | ...
 cargo release version <TYPE> --execute
 ```
