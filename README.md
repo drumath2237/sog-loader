@@ -29,7 +29,7 @@ cargo release version <TYPE> --execute
 2. create PR titled and merge it
 3. create tag named `crates_vX.X.X` push it
    1. then release workflow will run
-4. create GitHub Release titled "crates vX.X.X (short summery, optinally)"
+4. create GitHub Release titled "crates vX.X.X (short summary, optionally)"
 
 ## Developing npm packages
 
@@ -66,5 +66,5 @@ pnpm run version:bump
 1. bump versions
 2. create PR and merge it
 3. create tag named `web_vX.X.X` and push it
-   1. then release workflow run
-4. create GitHub Release titled "web vX.X.X (short summery, optionally)
+   1. then the release workflow will run
+4. create GitHub Release titled "web vX.X.X (short summary, optionally)"
