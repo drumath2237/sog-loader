@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:core": "pnpm --filter @sog-loader/core run build",
-    "version:bump": "lerna version --dry-run"
+    "version:bump": "lerna version --no-push --no-git-tag-version"
   },
   "keywords": [],
   "author": "",
