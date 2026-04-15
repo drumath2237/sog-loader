@@ -15,5 +15,9 @@
   "devDependencies": {
     "@lerna-lite/cli": "^4.11.5",
     "@lerna-lite/version": "^4.11.5"
+  },
+  "engines": {
+    "pnpm": "10.x",
+    "node": ">=18"
   }
 }
