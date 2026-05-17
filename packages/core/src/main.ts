@@ -1,7 +1,7 @@
 import "./style.css";
 
 import sog_path from "../../../crates/sample_data/pizza.sog?url";
-import { decodeRaw, unpackRaw, getDecoderVersion, getGitHash } from "../lib";
+import { decodeRaw, getDecoderVersion, getGitHash, unpackRaw } from "../lib";
 
 async function main() {
   console.log(`version=${getDecoderVersion()}, git HASH=${getGitHash()}`);
