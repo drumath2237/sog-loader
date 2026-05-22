@@ -1,7 +1,7 @@
 import "./style.css";
 
 import sog_path from "../../../crates/sample_data/pizza.sog?url";
-import { decodeRaw, unpackRaw, getDecoderInfo } from "../lib";
+import { decodeRaw, getDecoderInfo, unpackRaw } from "../lib";
 
 async function main() {
   const info = getDecoderInfo();
