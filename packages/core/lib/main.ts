@@ -2,10 +2,7 @@ import {
   decode as decodeRaw,
   type RawSogDataV2,
   RawSplat,
-  unpack as unpackRaw,
 } from "./wasm/sog_decoder_wasm";
-
-export { unpackRaw, decodeRaw, type RawSplat, type RawSogDataV2 };
 
 export function decode(data: RawSogDataV2): Splat {
   using rawSplat = decodeRaw(data);

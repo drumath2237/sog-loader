@@ -1,9 +1,12 @@
 import "./style.css";
 
 import sog_path from "../../../crates/sample_data/pizza.sog?url";
-import { decodeRaw, unpackRaw } from "../lib/main";
+import { decodeRaw, getDecoderInfo, unpackRaw } from "../lib";
 
 async function main() {
+  using info = getDecoderInfo();
+  console.log(`version=${info.version}, git HASH=${info.git_hash}`);
+
   const sog_file = await fetch(sog_path).then((res) => res.arrayBuffer());
 
   console.log("start");

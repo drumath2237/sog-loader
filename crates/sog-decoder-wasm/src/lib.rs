@@ -1,3 +1,4 @@
+mod info;
 mod types;
 
 pub use crate::types::{JsSogDataV2, JsSplat};
